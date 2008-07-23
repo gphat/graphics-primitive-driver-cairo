@@ -143,7 +143,7 @@ sub _draw_component {
     if(defined($comp->background_color)) {
         $context->set_source_rgba($comp->background_color->as_array_with_alpha);
         $context->rectangle(0, 0, $width, $height);
-        $context->paint;
+        $context->fill;
     }
 
     my $bwidth = $width;
@@ -189,19 +189,27 @@ sub _draw_textbox {
     my $bbox = $comp->inside_bounding_box;
     my $context = $self->cairo;
 
-    $context->move_to(
-        $bbox->origin->x - $comp->text_bounding_box->origin->x,
-        $bbox->origin->y - $comp->text_bounding_box->origin->y);
-
     $context->select_font_face(
         $comp->font->face, $comp->font->slant, $comp->font->weight
     );
     $context->set_font_size($comp->font->size);
 
-    $context->text_path($comp->text);
-    $context->fill;
+    # Start at the component's origin
+    $context->move_to($bbox->origin->x, $bbox->origin->y);
+    my $yaccum = 0;
+    foreach my $line (@{ $comp->lines }) {
+        my $text = $line->{text};
+        my $box = $line->{box};
 
-    $context->stroke;
+        $context->move_to(
+            $bbox->origin->x - $box->origin->x,
+            $bbox->origin->y + $yaccum - $box->origin->y
+        );
+        $context->text_path($text);
+        $yaccum += $box->height;
+    }
+    $context->set_source_rgba($comp->color->as_array_with_alpha);
+    $context->fill;
 }
 
 sub get_text_bounding_box {
