@@ -143,37 +143,37 @@ sub _draw_component {
     if(defined($comp->background_color)) {
         $context->set_source_rgba($comp->background_color->as_array_with_alpha);
         $context->rectangle(0, 0, $width, $height);
-        $context->paint();
+        $context->paint;
     }
 
     my $bwidth = $width;
     my $bheight = $height;
 
-    my $margins = $comp->margins();
+    my $margins = $comp->margins;
     my ($mx, $my, $mw, $mh) = (0, 0, 0, 0);
     if($margins) {
-        $mx = $margins->left();
-        $my = $margins->top();
-        $mw = $margins->right();
-        $mh = $margins->bottom();
+        $mx = $margins->left;
+        $my = $margins->top;
+        $mw = $margins->right;
+        $mh = $margins->bottom;
     }
 
-    if(defined($comp->border())) {
-        my $stroke = $comp->border();
-        my $bswidth = $stroke->width();
+    if(defined($comp->border) && $comp->border->width) {
+        my $stroke = $comp->border;
+        my $bswidth = $stroke->width;
         if(defined($comp->border->color)) {
             $context->set_source_rgba($comp->border->color->as_array_with_alpha);
         }
         $context->set_line_width($bswidth);
-        $context->set_line_cap($stroke->line_cap());
-        $context->set_line_join($stroke->line_join());
-        $context->new_path();
+        $context->set_line_cap($stroke->line_cap);
+        $context->set_line_join($stroke->line_join);
+        $context->new_path;
         my $swhalf = $bswidth / 2;
         $context->rectangle(
             $mx + $swhalf, $my + $swhalf,
             $width - $bswidth - $mw - $mx, $height - $bswidth - $mh - $my
         );
-        $context->stroke();
+        $context->stroke;
     }
 
     if(defined($comp->color)) {
@@ -244,7 +244,7 @@ Graphics::Primitive::Driver::Cairo - Cairo backend for Graphics::Primitive
     use Graphics::Pritive::Component;
     use Graphics::Primitive::Driver::Cairo;
 
-    my $driver = Graphics::Primitive::Driver::Cairo->new();
+    my $driver = Graphics::Primitive::Driver::Cairo->new;
     my $container = Graphics::Primitive::Container->new(
         width => $form->sheet_width,
         height => $form->sheet_height
