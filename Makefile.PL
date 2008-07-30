@@ -8,8 +8,11 @@ build_requires 'Test::More';
 
 test_requires 'Pod::Coverage::Moose';
 
+requires 'Cairo' => '1.060';
+requires 'Moose' => '0.54';
 requires 'IO::File';
-requires 'Graphics::Primitive' => '0.6';
+requires 'Geometry::Primitive' => '0.05';
+requires 'Graphics::Primitive' => '0.08';
 
 auto_install;
 
