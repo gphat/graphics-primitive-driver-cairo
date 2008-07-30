@@ -8,7 +8,7 @@ use Geometry::Primitive::Point;
 use Geometry::Primitive::Rectangle;
 use IO::File;
 
-extends 'Graphics::Primitive::Driver';
+with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
 our $VERSION = '0.01';
@@ -100,6 +100,7 @@ around('draw', sub {
     my $cairo = $class->cairo;
 
     $cairo->save;
+
     $cairo->translate($comp->origin->x, $comp->origin->y);
     $cairo->rectangle(0, 0, $comp->width, $comp->height);
     $cairo->clip;
@@ -146,27 +147,20 @@ sub _draw_component {
         $context->fill;
     }
 
-    my $bwidth = $width;
-    my $bheight = $height;
-
     my $margins = $comp->margins;
-    my ($mx, $my, $mw, $mh) = (0, 0, 0, 0);
-    if($margins) {
-        $mx = $margins->left;
-        $my = $margins->top;
-        $mw = $margins->right;
-        $mh = $margins->bottom;
-    }
+    my ($mx, $my, $mw, $mh) = (
+        $margins->left, $margins->top, $margins->right, $margins->bottom
+    );
 
     if(defined($comp->border) && $comp->border->width) {
-        my $stroke = $comp->border;
-        my $bswidth = $stroke->width;
-        if(defined($comp->border->color)) {
-            $context->set_source_rgba($comp->border->color->as_array_with_alpha);
+        my $border = $comp->border;
+        my $bswidth = $border->width;
+        if(defined($border->color)) {
+            $context->set_source_rgba($border->color->as_array_with_alpha);
         }
         $context->set_line_width($bswidth);
-        $context->set_line_cap($stroke->line_cap);
-        $context->set_line_join($stroke->line_join);
+        $context->set_line_cap($border->line_cap);
+        $context->set_line_join($border->line_join);
         $context->new_path;
         my $swhalf = $bswidth / 2;
         $context->rectangle(
@@ -174,10 +168,6 @@ sub _draw_component {
             $width - $bswidth - $mw - $mx, $height - $bswidth - $mh - $my
         );
         $context->stroke;
-    }
-
-    if(defined($comp->color)) {
-        $context->set_source_rgba($comp->color->as_array_with_alpha);
     }
 }
 
@@ -194,22 +184,70 @@ sub _draw_textbox {
     );
     $context->set_font_size($comp->font->size);
 
-    # Start at the component's origin
-    $context->move_to($bbox->origin->x, $bbox->origin->y);
     my $yaccum = 0;
     foreach my $line (@{ $comp->lines }) {
         my $text = $line->{text};
-        my $box = $line->{box};
+        my $tbox = $line->{box};
 
-        $context->move_to(
-            $bbox->origin->x - $box->origin->x,
-            $bbox->origin->y + $yaccum - $box->origin->y
-        );
+        my $x = $bbox->origin->x - $tbox->origin->x;
+        my $y = $bbox->origin->y + $yaccum - $tbox->origin->y;
+
+
+        $context->move_to($x, $y);
         $context->text_path($text);
-        $yaccum += $box->height;
+        $yaccum += $tbox->height;
     }
     $context->set_source_rgba($comp->color->as_array_with_alpha);
     $context->fill;
+}
+
+sub _draw_canvas {
+    my ($self, $comp) = @_;
+
+    $self->_draw_component($comp);
+
+    my $context = $self->cairo;
+
+    foreach my $piece (@{ $comp->paths }) {
+
+        my $op = $piece->{op};
+        my $path = $piece->{path};
+
+        $context->new_path;
+
+        foreach my $prim (@{ $path->primitives }) {
+
+            # FIXME Check::ISA
+            if($prim->isa('Geometry::Primitive::Line')) {
+                $self->_draw_line($prim);
+            }
+        }
+
+        if($op->isa('Graphics::Primitive::Operation::Stroke')) {
+            $self->_do_stroke($op);
+        } elsif($op->isa('Graphics::Primitive::Operation::Fill')) {
+            $self->_do_fill($op);
+        }
+    }
+}
+
+sub _draw_line {
+    my ($self, $line) = @_;
+
+    my $context = $self->cairo;
+    $context->move_to($line->point_start->x, $line->point_start->y);
+    $context->line_to($line->point_end->x, $line->point_end->y);
+}
+
+sub _do_stroke {
+    my ($self, $stroke) = @_;
+
+    my $context = $self->cairo;
+    $context->set_source_rgba($stroke->brush->color->as_array_with_alpha);
+    $context->set_line_cap($stroke->brush->line_cap);
+    $context->set_line_join($stroke->brush->line_join);
+    $context->set_line_width($stroke->brush->width);
+    $context->stroke;
 }
 
 sub get_text_bounding_box {
@@ -221,12 +259,6 @@ sub get_text_bounding_box {
     );
     $context->set_font_size($font->size);
     my $ext = $context->text_extents($text);
-
-    # print "$text\n";
-    # print "### w ".$ext->{width}."\n";
-    # print "### h ".$ext->{height}."\n";
-    # print "### x ".$ext->{x_bearing}."\n";
-    # print "### y ".$ext->{y_bearing}."\n\n";
 
     return Geometry::Primitive::Rectangle->new(
         origin  => Geometry::Primitive::Point->new(
