@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     'PDF', 'PS', 'PNG', 'SVG'
@@ -189,11 +189,10 @@ sub _draw_textbox {
         my $text = $line->{text};
         my $tbox = $line->{box};
 
-        my $x = $bbox->origin->x - $tbox->origin->x;
-        my $y = $bbox->origin->y + $yaccum - $tbox->origin->y;
+        my $x = $bbox->origin->x - $tbox->origin->x + 1;
+        my $y = $bbox->origin->y + $yaccum + $tbox->height;
 
-
-        $context->move_to($x, $y);
+        $context->move_to($x, $y - 1);
         $context->text_path($text);
         $yaccum += $tbox->height;
     }
@@ -231,12 +230,22 @@ sub _draw_canvas {
     }
 }
 
+sub _draw_arc {
+    my ($self, $arc) = @_;
+
+    my $context = $self->cairo;
+    $context->arc(
+        $arc->origin->start->x, $arc->point->origin->y, $arc->radius,
+        $arc->angle_start, $arc->angle_end
+    );
+}
+
 sub _draw_line {
     my ($self, $line) = @_;
 
     my $context = $self->cairo;
-    $context->move_to($line->point_start->x, $line->point_start->y);
-    $context->line_to($line->point_end->x, $line->point_end->y);
+    $context->move_to($line->start->x, $line->start->y);
+    $context->line_to($line->end->x, $line->end->y);
 }
 
 sub _do_stroke {
@@ -265,8 +274,8 @@ sub get_text_bounding_box {
             x => $ext->{x_bearing},
             y => $ext->{y_bearing}
         ),
-        width   => $ext->{width},
-        height  => $ext->{height}
+        width   => $ext->{width} + 2,
+        height  => $ext->{height} + 2
     );
 }
 
