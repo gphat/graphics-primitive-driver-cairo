@@ -205,28 +205,43 @@ sub _draw_canvas {
 
     $self->_draw_component($comp);
 
+    foreach (@{ $comp->paths }) {
+
+        $self->_draw_path($_->{path}, $_->{op});
+    }
+}
+
+sub _draw_path {
+    my ($self, $path, $op) = @_;
+
     my $context = $self->cairo;
 
-    foreach my $piece (@{ $comp->paths }) {
+    $context->new_path;
 
-        my $op = $piece->{op};
-        my $path = $piece->{path};
+    my $i = 0;
+    foreach my $prim (@{ $path->primitives }) {
 
-        $context->new_path;
+        my $hints = $path->get_hint($i);
 
-        foreach my $prim (@{ $path->primitives }) {
-
-            # FIXME Check::ISA
-            if($prim->isa('Geometry::Primitive::Line')) {
-                $self->_draw_line($prim);
+        if(defined($hints)) {
+            unless($hints->{contiguous}) {
+                $context->move_to(
+                    $prim->point_start->x, $prim->point_start->y
+                );
             }
         }
 
-        if($op->isa('Graphics::Primitive::Operation::Stroke')) {
-            $self->_do_stroke($op);
-        } elsif($op->isa('Graphics::Primitive::Operation::Fill')) {
-            $self->_do_fill($op);
+        # FIXME Check::ISA
+        if($prim->isa('Geometry::Primitive::Line')) {
+            $self->_draw_line($prim);
         }
+        $i++;
+    }
+
+    if($op->isa('Graphics::Primitive::Operation::Stroke')) {
+        $self->_do_stroke($op);
+    } elsif($op->isa('Graphics::Primitive::Operation::Fill')) {
+        $self->_do_fill($op);
     }
 }
 
@@ -244,8 +259,42 @@ sub _draw_line {
     my ($self, $line) = @_;
 
     my $context = $self->cairo;
-    $context->move_to($line->start->x, $line->start->y);
     $context->line_to($line->end->x, $line->end->y);
+}
+
+sub _do_fill {
+    my ($self, $fill) = @_;
+
+    my $context = $self->cairo;
+    my $paint = $fill->paint;
+
+    # FIXME Check::ISA?
+    if($paint->isa('Graphics::Primitive::Paint::Gradient')) {
+
+        if($paint->style eq 'linear') {
+            my $patt = Cairo::LinearGradient->create(
+                $paint->line->start->x, $paint->line->start->y,
+                # 0, 0,
+                $paint->line->end->x, $paint->line->end->y,
+            );
+            foreach my $stop ($paint->stops) {
+                my $color = $paint->get_stop($stop);
+                $patt->add_color_stop_rgba(
+                    $stop, $color->red, $color->green,
+                    $color->blue, $color->alpha
+                );
+            }
+            $context->set_source($patt);
+        } elsif($paint->style eq 'radial') {
+            # TODO
+        } else {
+            croak('Unknown gradient type: '.$paint->style);
+        }
+    } elsif($paint->isa('Graphics::Primitive::Paint::Solid')) {
+        $context->set_source_rgba($paint->color->as_array_with_alpha);
+    }
+
+    $context->fill;
 }
 
 sub _do_stroke {
