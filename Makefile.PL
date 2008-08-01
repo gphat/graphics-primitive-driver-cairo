@@ -12,7 +12,7 @@ requires 'Cairo' => '1.060';
 requires 'Moose' => '0.54';
 requires 'IO::File';
 requires 'Geometry::Primitive' => '0.06';
-requires 'Graphics::Primitive' => '0.09';
+requires 'Graphics::Primitive' => '0.10';
 
 auto_install;
 
