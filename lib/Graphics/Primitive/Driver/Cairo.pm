@@ -11,12 +11,22 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     'PDF', 'PS', 'PNG', 'SVG'
 );
 
+# If we encounter a operation with 'preserve' set to true we'll set this attr
+# to the number of primitives in that path.  On each iteration we'll check
+# this attribute.  If it's true, we'll skip that many primitives in the
+# current path and then reset the value.  This allows us to leverage cairo's
+# fill_preserve and stroke_perserve and avoid wasting time redrawing.
+has '_preserve_count' => (
+    isa => 'Str',
+    is  => 'rw',
+    default => sub { 0 }
+);
 has 'cairo' => (
     is => 'rw',
     isa => 'Cairo::Context',
@@ -200,6 +210,16 @@ sub _draw_textbox {
     $context->fill;
 }
 
+sub _draw_arc {
+    my ($self, $arc) = @_;
+
+    my $context = $self->cairo;
+    $context->arc(
+        $arc->origin->start->x, $arc->point->origin->y, $arc->radius,
+        $arc->angle_start, $arc->angle_end
+    );
+}
+
 sub _draw_canvas {
     my ($self, $comp) = @_;
 
@@ -216,11 +236,18 @@ sub _draw_path {
 
     my $context = $self->cairo;
 
-    $context->new_path;
+    my $pc = $self->_preserve_count;
+    if($pc) {
+        $self->_preserve_count(0);
+    } else {
+        $context->new_path;
+    }
 
-    my $i = 0;
-    foreach my $prim (@{ $path->primitives }) {
+    # If preserve count is set we've "preserved" a path that's made up 
+    # of X primitives.  Set the sentinel to 
 
+    for(my $i = $pc; $i < $path->primitive_count; $i++) {
+        my $prim = $path->get_primitive($i);
         my $hints = $path->get_hint($i);
 
         if(defined($hints)) {
@@ -234,8 +261,9 @@ sub _draw_path {
         # FIXME Check::ISA
         if($prim->isa('Geometry::Primitive::Line')) {
             $self->_draw_line($prim);
+        } elsif($prim->isa('Geometry::Primitive::Rectangle')) {
+            $self->_draw_rectangle($prim);
         }
-        $i++;
     }
 
     if($op->isa('Graphics::Primitive::Operation::Stroke')) {
@@ -243,16 +271,10 @@ sub _draw_path {
     } elsif($op->isa('Graphics::Primitive::Operation::Fill')) {
         $self->_do_fill($op);
     }
-}
 
-sub _draw_arc {
-    my ($self, $arc) = @_;
-
-    my $context = $self->cairo;
-    $context->arc(
-        $arc->origin->start->x, $arc->point->origin->y, $arc->radius,
-        $arc->angle_start, $arc->angle_end
-    );
+    if($op->preserve) {
+        $self->_preserve_count($path->primitive_count);
+    }
 }
 
 sub _draw_line {
@@ -260,6 +282,16 @@ sub _draw_line {
 
     my $context = $self->cairo;
     $context->line_to($line->end->x, $line->end->y);
+}
+
+sub _draw_rectangle {
+    my ($self, $rect) = @_;
+
+    my $context = $self->cairo;
+    $context->rectangle(
+        $rect->origin->x, $rect->origin->y,
+        $rect->width, $rect->height
+    );
 }
 
 sub _do_fill {
@@ -294,7 +326,11 @@ sub _do_fill {
         $context->set_source_rgba($paint->color->as_array_with_alpha);
     }
 
-    $context->fill;
+    if($fill->preserve) {
+        $context->fill_preserve;
+    } else {
+        $context->fill;
+    }
 }
 
 sub _do_stroke {
@@ -305,7 +341,12 @@ sub _do_stroke {
     $context->set_line_cap($stroke->brush->line_cap);
     $context->set_line_join($stroke->brush->line_join);
     $context->set_line_width($stroke->brush->width);
-    $context->stroke;
+
+    if($stroke->preserve) {
+        $context->stroke_preserve;
+    } else {
+        $context->stroke;
+    }
 }
 
 sub get_text_bounding_box {

@@ -1,5 +1,9 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.03
+  - Add support for preserve operations
+  - Add _draw_rectangle
+
 0.02
   - Add _draw_arc, _draw_path and _do_fill
   - Change to new Line accessor names

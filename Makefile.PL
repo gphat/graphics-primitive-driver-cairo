@@ -11,8 +11,8 @@ test_requires 'Pod::Coverage::Moose';
 requires 'Cairo' => '1.060';
 requires 'Moose' => '0.54';
 requires 'IO::File';
-requires 'Geometry::Primitive' => '0.05';
-requires 'Graphics::Primitive' => '0.08';
+requires 'Geometry::Primitive' => '0.06';
+requires 'Graphics::Primitive' => '0.09';
 
 auto_install;
 
