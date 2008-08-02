@@ -189,22 +189,26 @@ sub _draw_textbox {
     my $bbox = $comp->inside_bounding_box;
     my $context = $self->cairo;
 
+    my $font = $comp->font;
     $context->select_font_face(
-        $comp->font->face, $comp->font->slant, $comp->font->weight
+        $font->face, $font->slant, $font->weight
     );
-    $context->set_font_size($comp->font->size);
+    $context->set_font_size($font->size);
 
     my $yaccum = 0;
     foreach my $line (@{ $comp->lines }) {
         my $text = $line->{text};
         my $tbox = $line->{box};
 
-        my $x = $bbox->origin->x - $tbox->origin->x + 1;
-        my $y = $bbox->origin->y + $yaccum + $tbox->height;
+        my $o = $bbox->origin;
+        my $th = $tbox->height;
+
+        my $x = $o->x - $o->x + 1;
+        my $y = $o->y + $yaccum + $th;
 
         $context->move_to($x, $y - 1);
         $context->text_path($text);
-        $yaccum += $tbox->height;
+        $yaccum += $th;
     }
     $context->set_source_rgba($comp->color->as_array_with_alpha);
     $context->fill;
@@ -245,15 +249,16 @@ sub _draw_path {
 
     # If preserve count is set we've "preserved" a path that's made up 
     # of X primitives.  Set the sentinel to 
-
-    for(my $i = $pc; $i < $path->primitive_count; $i++) {
+    my $pcount = $path->primitive_count;
+    for(my $i = $pc; $i < $pcount; $i++) {
         my $prim = $path->get_primitive($i);
         my $hints = $path->get_hint($i);
 
         if(defined($hints)) {
             unless($hints->{contiguous}) {
+                my $ps = $prim->point_start;
                 $context->move_to(
-                    $prim->point_start->x, $prim->point_start->y
+                    $ps->x, $ps->y
                 );
             }
         }
@@ -281,7 +286,8 @@ sub _draw_line {
     my ($self, $line) = @_;
 
     my $context = $self->cairo;
-    $context->line_to($line->end->x, $line->end->y);
+    my $end = $line->end;
+    $context->line_to($end->x, $end->y);
 }
 
 sub _draw_rectangle {
@@ -336,11 +342,13 @@ sub _do_fill {
 sub _do_stroke {
     my ($self, $stroke) = @_;
 
+    my $br = $stroke->brush;
+
     my $context = $self->cairo;
-    $context->set_source_rgba($stroke->brush->color->as_array_with_alpha);
-    $context->set_line_cap($stroke->brush->line_cap);
-    $context->set_line_join($stroke->brush->line_join);
-    $context->set_line_width($stroke->brush->width);
+    $context->set_source_rgba($br->color->as_array_with_alpha);
+    $context->set_line_cap($br->line_cap);
+    $context->set_line_join($br->line_join);
+    $context->set_line_width($br->width);
 
     if($stroke->preserve) {
         $context->stroke_preserve;

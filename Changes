@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.04
+  - Minor optimizations
+
 0.03
   - Add support for preserve operations
   - Add _draw_rectangle
