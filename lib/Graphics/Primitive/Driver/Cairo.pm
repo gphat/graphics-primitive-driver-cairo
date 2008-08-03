@@ -17,7 +17,7 @@ enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     'PDF', 'PS', 'PNG', 'SVG'
 );
 
-# If we encounter a operation with 'preserve' set to true we'll set this attr
+# If we encounter an operation with 'preserve' set to true we'll set this attr
 # to the number of primitives in that path.  On each iteration we'll check
 # this attribute.  If it's true, we'll skip that many primitives in the
 # current path and then reset the value.  This allows us to leverage cairo's
@@ -219,9 +219,15 @@ sub _draw_arc {
 
     my $context = $self->cairo;
     my $o = $arc->origin;
-    $context->arc(
-        $o->x, $o->y, $arc->radius, $arc->angle_start, $arc->angle_end
-    );
+    if($arc->angle_start > $arc->angle_end) {
+        $context->arc_negative(
+            $o->x, $o->y, $arc->radius, $arc->angle_start, $arc->angle_end
+        );
+    } else {
+        $context->arc(
+            $o->x, $o->y, $arc->radius, $arc->angle_start, $arc->angle_end
+        );
+    }
 }
 
 sub _draw_canvas {
