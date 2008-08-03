@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     'PDF', 'PS', 'PNG', 'SVG'
@@ -218,9 +218,9 @@ sub _draw_arc {
     my ($self, $arc) = @_;
 
     my $context = $self->cairo;
+    my $o = $arc->origin;
     $context->arc(
-        $arc->origin->start->x, $arc->point->origin->y, $arc->radius,
-        $arc->angle_start, $arc->angle_end
+        $o->x, $o->y, $arc->radius, $arc->angle_start, $arc->angle_end
     );
 }
 
@@ -268,6 +268,8 @@ sub _draw_path {
             $self->_draw_line($prim);
         } elsif($prim->isa('Geometry::Primitive::Rectangle')) {
             $self->_draw_rectangle($prim);
+        } elsif($prim->isa('Geometry::Primitive::Arc')) {
+            $self->_draw_arc($prim);
         }
     }
 

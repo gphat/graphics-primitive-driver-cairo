@@ -2,6 +2,7 @@ Revision history for Graphics-Primitive-Driver-Cairo
 
 0.04
   - Minor optimizations
+  - Add arc to primitive elsif
 
 0.03
   - Add support for preserve operations
