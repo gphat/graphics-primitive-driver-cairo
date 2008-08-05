@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.06
+  - Add _draw_bezier
+
 0.05
   - Add check for arc_negative and use it if necessary
   - Add angle support to get_text_bounding box and _draw_textbox

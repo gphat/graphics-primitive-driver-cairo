@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     'PDF', 'PS', 'PNG', 'SVG'
@@ -250,6 +250,18 @@ sub _draw_arc {
     }
 }
 
+sub _draw_bezier {
+    my ($self, $bezier) = @_;
+
+    my $context = $self->cairo;
+    my $start = $bezier->start;
+    my $end = $bezier->end;
+    my $c1 = $bezier->control1;
+    my $c2 = $bezier->control2;
+
+    $context->curve_to($c1->x, $c1->y, $c2->x, $c2->y, $end->x, $end->y);
+}
+
 sub _draw_canvas {
     my ($self, $comp) = @_;
 
@@ -296,6 +308,8 @@ sub _draw_path {
             $self->_draw_rectangle($prim);
         } elsif($prim->isa('Geometry::Primitive::Arc')) {
             $self->_draw_arc($prim);
+        } elsif($prim->isa('Geometry::Primitive::Bezier')) {
+            $self->_draw_bezier($prim);
         }
     }
 
