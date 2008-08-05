@@ -525,6 +525,10 @@ two rectangles are actually the same object.
 If the optional angle is supplied the text will be rotated by the supplied
 amount in radians.
 
+=item I<reset>
+
+Reset the driver.
+
 =item I<surface>
 
 Get/Set the surface on which this driver is operating.
