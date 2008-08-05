@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     'PDF', 'PS', 'PNG', 'SVG'
@@ -195,21 +195,41 @@ sub _draw_textbox {
     );
     $context->set_font_size($font->size);
 
+    my $angle = $comp->angle;
+
     my $yaccum = 0;
     foreach my $line (@{ $comp->lines }) {
         my $text = $line->{text};
         my $tbox = $line->{box};
 
-        my $o = $bbox->origin;
+        my $o = $tbox->origin;
         my $th = $tbox->height;
+        my $twidth2 = $tbox->width / 2;
+        my $theight = $tbox->height;
+        my $cwidth2 = $comp->width / 2;
+        my $cheight2 = $comp->height / 2;
 
-        my $x = $o->x - $o->x + 1;
-        my $y = $o->y + $yaccum + $th;
+        my $x = $bbox->origin->x + $o->x;# + 1;
+        my $y = abs($bbox->origin->y) + abs($o->y) + $yaccum;# + $th;
 
-        $context->move_to($x, $y - 1);
-        $context->text_path($text);
+        $context->save;
+
+        if($angle) {
+            $context->translate($cwidth2, $cheight2);
+            $context->rotate($angle);
+            $context->translate(-$cwidth2, -$cheight2);
+            $context->move_to($cwidth2 - $twidth2, $cheight2 + $theight / 3.5);
+            $context->text_path($text);
+
+        } else {
+            $context->move_to($x, $y);
+            $context->text_path($text);
+        }
+
+        $context->restore;
         $yaccum += $th;
     }
+
     $context->set_source_rgba($comp->color->as_array_with_alpha);
     $context->fill;
 }
@@ -320,7 +340,6 @@ sub _do_fill {
         if($paint->style eq 'linear') {
             my $patt = Cairo::LinearGradient->create(
                 $paint->line->start->x, $paint->line->start->y,
-                # 0, 0,
                 $paint->line->end->x, $paint->line->end->y,
             );
             foreach my $stop ($paint->stops) {
@@ -366,23 +385,50 @@ sub _do_stroke {
 }
 
 sub get_text_bounding_box {
-    my ($self, $font, $text) = @_;
+    my ($self, $font, $text, $angle) = @_;
 
     my $context = $self->cairo;
+
+    $context->new_path;
+
     $context->select_font_face(
         $font->face, $font->slant, $font->weight
     );
     $context->set_font_size($font->size);
-    my $ext = $context->text_extents($text);
+    $context->move_to(0, 0);
+    $context->text_path($text);
 
-    return Geometry::Primitive::Rectangle->new(
+    my @exts = $context->path_extents;
+    my $tb = Geometry::Primitive::Rectangle->new(
         origin  => Geometry::Primitive::Point->new(
-            x => $ext->{x_bearing},
-            y => $ext->{y_bearing}
+            x => $exts[0],
+            y => $exts[1],
         ),
-        width   => $ext->{width} + 2,
-        height  => $ext->{height} + 2
+        width   => abs($exts[2]) + abs($exts[0]),
+        height  => abs($exts[3]) + abs($exts[1])
     );
+
+    my $cb = $tb;
+    if($angle) {
+        $context->rotate($angle);
+
+        my ($x1, $y1, $x2, $y2) = $context->path_extents;
+        $cb = Geometry::Primitive::Rectangle->new(
+            origin  => Geometry::Primitive::Point->new(
+                x => $x1,
+                y => $y1,
+            ),
+            width   => abs($x2) + abs($x1),
+            height  => abs($y2) + abs($y1)
+        );
+    }
+    return ($cb, $tb);
+}
+
+sub reset {
+    my ($self) = @_;
+
+    $self->clear_cairo;
 }
 
 no Moose;
@@ -464,11 +510,20 @@ Draws the specified component.  Container's components are drawn recursively.
 
 Get the format for this driver.
 
-=item I<get_text_bounding_box>
+=item I<get_text_bounding_box ($font, $text, $angle)>
 
-Returns a L<Graphics::Primitive::Rectangle> that encloses the rendered text.
-The origin's x and y maybe negative, meaning that the glyphs in the text
-extending left of x or above y.
+Returns two L<Rectangles|Graphics::Primitive::Rectangle> that encloses the
+supplied text. The origin's x and y maybe negative, meaning that the glyphs in
+the text extending left of x or above y.
+
+The first rectangle is the bounding box required for a container that wants to
+contain the text.  The second box is only useful if an optional angle is
+provided.  This second rectangle is the bounding box of the un-rotated text
+that allows for a controlled rotation.  If no angle is supplied then the
+two rectangles are actually the same object.
+
+If the optional angle is supplied the text will be rotated by the supplied
+amount in radians.
 
 =item I<surface>
 
