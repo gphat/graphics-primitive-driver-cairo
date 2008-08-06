@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.07
+  - Ditch stupid component attribute!!
+
 0.06
   - Add _draw_bezier
 

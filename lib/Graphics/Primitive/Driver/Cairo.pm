@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     'PDF', 'PS', 'PNG', 'SVG'
@@ -37,14 +37,18 @@ has 'cairo' => (
         return Cairo::Context->create($self->surface);
     }
 );
-has 'component' => (
-    is => 'rw',
-    isa => 'Graphics::Primitive::Component'
-);
 has 'format' => (
     is => 'ro',
     isa => 'Graphics::Primitive::Driver::Cairo::Format',
     default => sub { 'PNG' }
+);
+has 'height' => (
+    is => 'rw',
+    isa => 'Num'
+);
+has 'width' => (
+    is => 'rw',
+    isa => 'Num'
 );
 has 'surface' => (
     is => 'rw',
@@ -55,32 +59,32 @@ has 'surface' => (
         # to've chosen when creating this object
         my $self = shift;
 
-        my $comp = $self->component;
-        die('Must have a component') unless $comp;
-
         my $surface;
+
+        my $width = $self->width;
+        my $height = $self->height;
 
         if($self->format eq 'PNG') {
             $surface = Cairo::ImageSurface->create(
-                'argb32', $comp->width, $comp->height
+                'argb32', $width, $height
             );
         } elsif($self->format eq 'PDF') {
             croak('Your Cairo does not have PostScript support!')
                 unless Cairo::HAS_PDF_SURFACE;
             $surface = Cairo::PdfSurface->create_for_stream(
-                $self->can('append_surface_data'), $self, $comp->width, $comp->height
+                $self->can('append_surface_data'), $self, $width, $height
             );
         } elsif($self->format eq 'PS') {
             croak('Your Cairo does not have PostScript support!')
                 unless Cairo::HAS_PS_SURFACE;
             $surface = Cairo::PsSurface->create_for_stream(
-                $self->can('append_surface_data'), $self, $comp->width, $comp->height
+                $self->can('append_surface_data'), $self, $width, $height
             );
         } elsif($self->format eq 'SVG') {
             croak('Your Cairo does not have SVG support!')
                 unless Cairo::HAS_SVG_SURFACE;
             $surface = Cairo::SvgSurface->create_for_stream(
-                $self->can('append_surface_data'), $self, $comp->width, $comp->height
+                $self->can('append_surface_data'), $self, $width, $height
             );
         } else {
             croak("Unknown format '".$self->format."'");
