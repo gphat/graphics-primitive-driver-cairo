@@ -402,6 +402,22 @@ sub _do_stroke {
     }
 }
 
+sub _finish_page {
+    my ($self) = @_;
+
+    my $context = $self->cairo;
+    $context->show_page;
+}
+
+sub _resize {
+    my ($self, $width, $height) = @_;
+
+    # Don't resize unless we have to
+    if(($self->width != $width) || ($self->height != $height)) {
+        $self->surface->set_size($width, $height);
+    }
+}
+
 sub get_text_bounding_box {
     my ($self, $font, $text, $angle) = @_;
 
