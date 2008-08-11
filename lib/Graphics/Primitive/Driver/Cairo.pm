@@ -235,16 +235,13 @@ sub _draw_textbox {
             $context->text_path($text);
 
         } else {
-            # $context->rectangle($x, $y, 10, -$theight);
-            # print "## $x, $y (".$bbox->origin->y.")\n";
             $context->move_to($x, $y);
             $context->text_path($text);
         }
 
         $context->restore;
-        $yaccum += $lh;#$theight;
+        $yaccum += $lh;
     }
-
     $context->set_source_rgba($comp->color->as_array_with_alpha);
     $context->fill;
 }
@@ -436,21 +433,34 @@ sub get_text_bounding_box {
 
     $context->new_path;
 
-    $context->select_font_face(
-        $font->face, $font->slant, $font->weight
-    );
-    $context->set_font_size($font->size);
-    $context->move_to(0, 0);
-    $context->text_path($text);
+    my $fsize = $font->size;
+    my @exts;
+    if($text eq '') {
+        # Catch empty lines.  There's no sense trying to get it's height.  We
+        # just set it to the height of the font and move on.
+        @exts = (0, -$font->size, 0, 0);
+    } else {
+        $context->select_font_face(
+            $font->face, $font->slant, $font->weight
+        );
+        $context->set_font_size($fsize);
+        $context->move_to(0, 0);
+        $context->text_path($text);
 
-    my @exts = $context->path_extents;
+        @exts = $context->path_extents;
+    }
+
+    my $tbsize = abs($exts[3]) + abs($exts[1]);
+    if($fsize > $tbsize) {
+        $tbsize = $fsize;
+    }
     my $tb = Geometry::Primitive::Rectangle->new(
         origin  => Geometry::Primitive::Point->new(
             x => $exts[0],
             y => $exts[1],
         ),
         width   => abs($exts[2]) + abs($exts[0]),
-        height  => abs($exts[3]) + abs($exts[1])
+        height  => $tbsize
     );
 
     my $cb = $tb;
@@ -467,6 +477,7 @@ sub get_text_bounding_box {
             height  => abs($y2) + abs($y1)
         );
     }
+
     return ($cb, $tb);
 }
 
