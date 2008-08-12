@@ -438,7 +438,7 @@ sub get_text_bounding_box {
     my $key = "$text||".$font->face.'||'.$font->slant.'||'.$font->weight.'||'.$fsize;
 
     if(exists($self->{TBCACHE}->{$key})) {
-        return ($self->{$key}->[0], $self->{$key}->[1]);
+        return ($self->{TBCACHE}->{$key}->[0], $self->{TBCACHE}->{$key}->[1]);
     }
 
     $self->{$text} = 1;
@@ -459,6 +459,8 @@ sub get_text_bounding_box {
         @exts = $context->path_extents;
     }
 
+    # If the textbox is smaller than it's font-size, use the font-size.  This
+    # gives us a consistent line-height.
     my $tbsize = abs($exts[3]) + abs($exts[1]);
     if($fsize > $tbsize) {
         $tbsize = $fsize;
