@@ -434,6 +434,15 @@ sub get_text_bounding_box {
     $context->new_path;
 
     my $fsize = $font->size;
+
+    my $key = "$text||".$font->face.'||'.$font->slant.'||'.$font->weight.'||'.$fsize;
+
+    if(exists($self->{TBCACHE}->{$key})) {
+        return ($self->{$key}->[0], $self->{$key}->[1]);
+    }
+
+    $self->{$text} = 1;
+
     my @exts;
     if($text eq '') {
         # Catch empty lines.  There's no sense trying to get it's height.  We
@@ -477,6 +486,8 @@ sub get_text_bounding_box {
             height  => abs($y2) + abs($y1)
         );
     }
+
+    $self->{TBCACHE}->{$key} = [ $cb, $tb ];
 
     return ($cb, $tb);
 }

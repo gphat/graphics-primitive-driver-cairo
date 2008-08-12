@@ -1,6 +1,9 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
 0.08
+  - Add caching to get_text_bounding_box
+
+0.08
   - TextBox: line_height
   - TextBox: don't ignore empty lines
 
