@@ -42,14 +42,6 @@ has 'format' => (
     isa => 'Graphics::Primitive::Driver::Cairo::Format',
     default => sub { 'PNG' }
 );
-has 'height' => (
-    is => 'rw',
-    isa => 'Num'
-);
-has 'width' => (
-    is => 'rw',
-    isa => 'Num'
-);
 has 'surface' => (
     is => 'rw',
     clearer => 'clear_surface',
@@ -205,7 +197,8 @@ sub _draw_textbox {
     my $lh = $comp->line_height;
     $lh = $fsize unless(defined($lh));
 
-    my $yaccum = $bbox->origin->y ;
+    my $yaccum = $bbox->origin->y;
+
     foreach my $line (@{ $comp->lines }) {
         my $text = $line->{text};
         my $tbox = $line->{box};
