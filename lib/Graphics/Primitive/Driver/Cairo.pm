@@ -154,26 +154,64 @@ sub _draw_component {
     }
 
     my $margins = $comp->margins;
-    my ($mx, $my, $mw, $mh) = (
+    my ($ml, $mt, $mr, $mb) = (
         $margins->left, $margins->top, $margins->right, $margins->bottom
     );
 
-    if(defined($comp->border) && $comp->border->width) {
+    if(defined($comp->border)) {
         my $border = $comp->border;
-        my $bswidth = $border->width;
-        if(defined($border->color)) {
-            $context->set_source_rgba($border->color->as_array_with_alpha);
+
+        my $bt = $border->top;
+        my $thalf = (defined($bt) && defined($bt->color))
+            ? $bt->width / 2: 0;
+
+        my $br = $border->right;
+        my $rhalf = (defined($br) && defined($br->color))
+            ? $br->width / 2: 0;
+
+        my $bb = $border->bottom;
+        my $bhalf = (defined($bb) && defined($bb->color))
+            ? $bb->width / 2 : 0;
+
+        my $bl = $border->left;
+        my $lhalf = (defined($bl) && defined($bl->color))
+            ? $bl->width / 2 : 0;
+
+        if($thalf) {
+            $context->move_to($ml, $mt + $thalf);
+            $context->set_source_rgba($bt->color->as_array_with_alpha);
+
+            $context->set_line_width($bt->width);
+            $context->rel_line_to($width - $mr - $ml, 0);
+            $context->stroke;
         }
-        $context->set_line_width($bswidth);
-        $context->set_line_cap($border->line_cap);
-        $context->set_line_join($border->line_join);
-        $context->new_path;
-        my $swhalf = $bswidth / 2;
-        $context->rectangle(
-            $mx + $swhalf, $my + $swhalf,
-            $width - $bswidth - $mw - $mx, $height - $bswidth - $mh - $my
-        );
-        $context->stroke;
+
+        if($rhalf) {
+            $context->move_to($width - $mr - $rhalf, $mt);
+            $context->set_source_rgba($br->color->as_array_with_alpha);
+
+            $context->set_line_width($br->width);
+            $context->rel_line_to(0, $height - $mb);
+            $context->stroke;
+        }
+
+        if($bhalf) {
+            $context->move_to($width - $mr, $height - $bhalf - $mb);
+            $context->set_source_rgba($bb->color->as_array_with_alpha);
+
+            $context->set_line_width($bb->width);
+            $context->rel_line_to(-($width - $mb), 0);
+            $context->stroke;
+        }
+
+        if($lhalf) {
+            $context->move_to($ml + $lhalf, $mt);
+            $context->set_source_rgba($bl->color->as_array_with_alpha);
+
+            $context->set_line_width($bl->width);
+            $context->rel_line_to(0, $height - $mb);
+            $context->stroke;
+        }
     }
 }
 
