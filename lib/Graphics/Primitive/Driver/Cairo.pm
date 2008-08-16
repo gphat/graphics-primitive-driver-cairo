@@ -153,66 +153,115 @@ sub _draw_component {
         $context->fill;
     }
 
-    my $margins = $comp->margins;
-    my ($ml, $mt, $mr, $mb) = (
-        $margins->left, $margins->top, $margins->right, $margins->bottom
-    );
-
     if(defined($comp->border)) {
+
         my $border = $comp->border;
 
-        my $bt = $border->top;
-        my $thalf = (defined($bt) && defined($bt->color))
-            ? $bt->width / 2: 0;
-
-        my $br = $border->right;
-        my $rhalf = (defined($br) && defined($br->color))
-            ? $br->width / 2: 0;
-
-        my $bb = $border->bottom;
-        my $bhalf = (defined($bb) && defined($bb->color))
-            ? $bb->width / 2 : 0;
-
-        my $bl = $border->left;
-        my $lhalf = (defined($bl) && defined($bl->color))
-            ? $bl->width / 2 : 0;
-
-        if($thalf) {
-            $context->move_to($ml, $mt + $thalf);
-            $context->set_source_rgba($bt->color->as_array_with_alpha);
-
-            $context->set_line_width($bt->width);
-            $context->rel_line_to($width - $mr - $ml, 0);
-            $context->stroke;
-        }
-
-        if($rhalf) {
-            $context->move_to($width - $mr - $rhalf, $mt);
-            $context->set_source_rgba($br->color->as_array_with_alpha);
-
-            $context->set_line_width($br->width);
-            $context->rel_line_to(0, $height - $mb);
-            $context->stroke;
-        }
-
-        if($bhalf) {
-            $context->move_to($width - $mr, $height - $bhalf - $mb);
-            $context->set_source_rgba($bb->color->as_array_with_alpha);
-
-            $context->set_line_width($bb->width);
-            $context->rel_line_to(-($width - $mb), 0);
-            $context->stroke;
-        }
-
-        if($lhalf) {
-            $context->move_to($ml + $lhalf, $mt);
-            $context->set_source_rgba($bl->color->as_array_with_alpha);
-
-            $context->set_line_width($bl->width);
-            $context->rel_line_to(0, $height - $mb);
-            $context->stroke;
+        if($border->homogeneous) {
+            $self->_draw_simple_border($comp);
+        } else {
+            $self->_draw_complex_border($comp);
         }
     }
+}
+
+sub _draw_complex_border {
+    my ($self, $comp) = @_;
+
+    my ($ml, $mt, $mr, $mb) = $comp->margins->as_array;
+
+    my $context = $self->cairo;
+    my $border = $comp->border;
+
+    my $width = $comp->width;
+    my $height = $comp->height;
+
+    my $bt = $border->top;
+    my $thalf = (defined($bt) && defined($bt->color))
+        ? $bt->width / 2: 0;
+
+    my $br = $border->right;
+    my $rhalf = (defined($br) && defined($br->color))
+        ? $br->width / 2: 0;
+
+    my $bb = $border->bottom;
+    my $bhalf = (defined($bb) && defined($bb->color))
+        ? $bb->width / 2 : 0;
+
+    my $bl = $border->left;
+    my $lhalf = (defined($bl) && defined($bl->color))
+        ? $bl->width / 2 : 0;
+
+    if($thalf) {
+        $context->move_to($ml, $mt + $thalf);
+        $context->set_source_rgba($bt->color->as_array_with_alpha);
+
+        $context->set_line_width($bt->width);
+        $context->rel_line_to($width - $mr - $ml, 0);
+        $context->stroke;
+    }
+
+    if($rhalf) {
+        $context->move_to($width - $mr - $rhalf, $mt);
+        $context->set_source_rgba($br->color->as_array_with_alpha);
+
+        $context->set_line_width($br->width);
+        $context->rel_line_to(0, $height - $mb);
+        $context->stroke;
+    }
+
+    if($bhalf) {
+        $context->move_to($width - $mr, $height - $bhalf - $mb);
+        $context->set_source_rgba($bb->color->as_array_with_alpha);
+
+        $context->set_line_width($bb->width);
+        $context->rel_line_to(-($width - $mb), 0);
+        $context->stroke;
+    }
+
+    if($lhalf) {
+        $context->move_to($ml + $lhalf, $mt);
+        $context->set_source_rgba($bl->color->as_array_with_alpha);
+
+        $context->set_line_width($bl->width);
+        $context->rel_line_to(0, $height - $mb);
+        $context->stroke;
+    }
+}
+
+sub _draw_simple_border {
+    my ($self, $comp) = @_;
+
+    my $context = $self->cairo;
+
+    my $border = $comp->border;
+    my $top = $border->top;
+    my $bswidth = $top->width;
+    # if(defined($border->color)) {
+        $context->set_source_rgba($top->color->as_array_with_alpha);
+    # }
+
+    my @margins = $comp->margins->as_array;
+
+    $context->set_line_width($bswidth);
+    $context->set_line_cap($top->line_cap);
+    $context->set_line_join($top->line_join);
+
+    $context->new_path;
+    my $swhalf = $bswidth / 2;
+    my $width = $comp->width;
+    my $height = $comp->height;
+    my $mx = $margins[3];
+    my $my = $margins[1];
+
+    $context->rectangle(
+        $margins[3] + $swhalf, $margins[0] + $swhalf,
+        $width - $bswidth - $margins[3] - $margins[1],
+        $height - $bswidth - $margins[2] - $margins[0]
+        # $mx + $swhalf, $margins[1] + $swhalf,
+        # $width - $bswidth - $mw - $mx, $height - $bswidth - $mh - $my
+    );
+    $context->stroke;
 }
 
 sub _draw_textbox {
