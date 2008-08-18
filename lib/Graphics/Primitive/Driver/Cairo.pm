@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     'PDF', 'PS', 'PNG', 'SVG'
@@ -158,7 +158,10 @@ sub _draw_component {
         my $border = $comp->border;
 
         if($border->homogeneous) {
-            $self->_draw_simple_border($comp);
+            # Don't bother if there's no width
+            if($border->top->width) {
+                $self->_draw_simple_border($comp);
+            }
         } else {
             $self->_draw_complex_border($comp);
         }
@@ -370,6 +373,9 @@ sub _draw_path {
 
     my $context = $self->cairo;
 
+    # If preserve count is set we've "preserved" a path that's made up 
+    # of X primitives.  Set the sentinel to the the count so we skip that
+    # many primitives
     my $pc = $self->_preserve_count;
     if($pc) {
         $self->_preserve_count(0);
@@ -377,8 +383,6 @@ sub _draw_path {
         $context->new_path;
     }
 
-    # If preserve count is set we've "preserved" a path that's made up 
-    # of X primitives.  Set the sentinel to 
     my $pcount = $path->primitive_count;
     for(my $i = $pc; $i < $pcount; $i++) {
         my $prim = $path->get_primitive($i);

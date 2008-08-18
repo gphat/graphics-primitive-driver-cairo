@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.11
+  - Skip 0-width borders
+
 0.10
   - Handle per-side borders in Graphics::Primitive 0.17
   - Add some simple output testing of borders, more to come
