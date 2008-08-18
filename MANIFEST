@@ -16,5 +16,9 @@ MANIFEST
 META.yml
 README
 t/00-load.t
+t/10-complex-border.t
+t/10-simple-border.t
+t/images/complex-border.png
+t/images/simple-border.png
 t/pod-coverage.t
 t/pod.t
