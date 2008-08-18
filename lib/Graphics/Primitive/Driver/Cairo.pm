@@ -621,6 +621,19 @@ Graphics::Primitive::Driver::Cairo - Cairo backend for Graphics::Primitive
 
 This module draws Graphics::Primitive objects using Cairo.
 
+=head1 IMPLEMENTATION DETAILS
+
+=over 4
+
+=item B<Borders>
+
+Borders are drawn clockwise starting with the top one.  Since cairo can't do
+line-joins on different colored lines, each border overlaps those before it.
+This is not the way I'd like it to work, but i'm opting to fix this later.
+Consider yourself warned.
+
+=back
+
 =head1 METHODS
 
 =head2 Constructor
