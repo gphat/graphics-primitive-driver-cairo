@@ -2,6 +2,7 @@ Revision history for Graphics-Primitive-Driver-Cairo
 
 0.10
   - Handle per-side borders in Graphics::Primitive 0.17
+  - Add some simple output testing of borders, more to come
 
 0.09
   - Add caching to get_text_bounding_box
