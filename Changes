@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.12
+  - Make format case-insensitive
+
 0.11
   - Skip 0-width borders
 

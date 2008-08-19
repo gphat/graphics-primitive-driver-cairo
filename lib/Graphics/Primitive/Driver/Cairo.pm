@@ -14,7 +14,7 @@ our $AUTHORITY = 'cpan:GPHAT';
 our $VERSION = '0.11';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
-    'PDF', 'PS', 'PNG', 'SVG'
+    qw(PDF PS PNG SVG pdf ps png svg)
 );
 
 # If we encounter an operation with 'preserve' set to true we'll set this attr
@@ -56,23 +56,23 @@ has 'surface' => (
         my $width = $self->width;
         my $height = $self->height;
 
-        if($self->format eq 'PNG') {
+        if(uc($self->format) eq 'PNG') {
             $surface = Cairo::ImageSurface->create(
                 'argb32', $width, $height
             );
-        } elsif($self->format eq 'PDF') {
+        } elsif(uc($self->format) eq 'PDF') {
             croak('Your Cairo does not have PostScript support!')
                 unless Cairo::HAS_PDF_SURFACE;
             $surface = Cairo::PdfSurface->create_for_stream(
                 $self->can('append_surface_data'), $self, $width, $height
             );
-        } elsif($self->format eq 'PS') {
+        } elsif(uc($self->format) eq 'PS') {
             croak('Your Cairo does not have PostScript support!')
                 unless Cairo::HAS_PS_SURFACE;
             $surface = Cairo::PsSurface->create_for_stream(
                 $self->can('append_surface_data'), $self, $width, $height
             );
-        } elsif($self->format eq 'SVG') {
+        } elsif(uc($self->format) eq 'SVG') {
             croak('Your Cairo does not have SVG support!')
                 unless Cairo::HAS_SVG_SURFACE;
             $surface = Cairo::SvgSurface->create_for_stream(
