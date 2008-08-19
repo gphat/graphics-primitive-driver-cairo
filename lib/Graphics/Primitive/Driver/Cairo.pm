@@ -121,7 +121,7 @@ sub write {
 
     my $cr = $self->cairo;
 
-    if($self->format eq 'PNG') {
+    if(uc($self->format) eq 'PNG') {
         $cr->get_target->write_to_png($file);
         return;
     }

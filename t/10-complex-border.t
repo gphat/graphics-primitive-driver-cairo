@@ -36,7 +36,7 @@ $comp->border->top->width(6);
 $comp->border->bottom->width(8);
 
 
-my $driver = Graphics::Primitive::Driver::Cairo->new;
+my $driver = Graphics::Primitive::Driver::Cairo->new(format => 'png');
 $driver->prepare($comp);
 $driver->pack($comp);
 $driver->draw($comp);

@@ -25,7 +25,7 @@ my $black = Graphics::Color::RGB->new(red => 0, green => 0, blue => 0, alpha => 
 $comp->border->color($black);
 $comp->border->width(4);
 
-my $driver = Graphics::Primitive::Driver::Cairo->new;
+my $driver = Graphics::Primitive::Driver::Cairo->new(format => 'PNG');
 $driver->prepare($comp);
 $driver->pack($comp);
 $driver->draw($comp);
