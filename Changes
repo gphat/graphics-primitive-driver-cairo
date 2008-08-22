@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.13
+  - Non-rotated TextBox alignment
+
 0.12
   - Make format case-insensitive
 

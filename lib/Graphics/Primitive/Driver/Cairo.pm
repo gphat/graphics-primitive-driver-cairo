@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     qw(PDF PS PNG SVG pdf ps png svg)
@@ -272,6 +272,14 @@ sub _draw_textbox {
 
     $self->_draw_component($comp);
 
+    my $width = $comp->width;
+    my $height = $comp->height;
+    my $width2 = $width / 2;
+    my $height2 = $height / 2;
+
+    my $halign = $comp->horizontal_alignment;
+    my $valign = $comp->vertical_alignment;
+
     my $bbox = $comp->inside_bounding_box;
     my $context = $self->cairo;
 
@@ -295,6 +303,10 @@ sub _draw_textbox {
 
         my $o = $tbox->origin;
         my $bbo = $bbox->origin;
+        my $twidth = $tbox->width;
+        my $theight = $tbox->height;
+        my $twidth2 = $twidth / 2;
+        my $theight2 = $theight / 2;
 
         my $x = $bbox->origin->x + $o->x;
 
@@ -306,10 +318,10 @@ sub _draw_textbox {
         $context->save;
 
         if($angle) {
-            my $twidth2 = $tbox->width / 2;
-            my $theight = $tbox->height;
-            my $cwidth2 = $comp->width / 2;
-            my $cheight2 = $comp->height / 2;
+            my $twidth2 = $twidth / 2;
+            my $theight = $theight;
+            my $cwidth2 = $width / 2;
+            my $cheight2 = $height / 2;
 
             $context->translate($cwidth2, $cheight2);
             $context->rotate($angle);
@@ -318,6 +330,18 @@ sub _draw_textbox {
             $context->text_path($text);
 
         } else {
+            if($halign eq 'right') {
+                $x = $width - $twidth;
+            } elsif($halign eq 'center') {
+                $x += $width2 - $twidth2;
+            }
+
+            if($valign eq 'bottom') {
+                $y = $height;
+            } elsif($valign eq 'center') {
+                $y += $height2 - $theight2;
+            }
+
             $context->move_to($x, $y);
             $context->text_path($text);
         }
