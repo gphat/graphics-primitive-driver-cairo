@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     qw(PDF PS PNG SVG pdf ps png svg)
@@ -165,7 +165,7 @@ sub _draw_component {
 sub _draw_complex_border {
     my ($self, $comp) = @_;
 
-    my ($ml, $mt, $mr, $mb) = $comp->margins->as_array;
+    my ($mt, $mr, $mb, $ml) = $comp->margins->as_array;
 
     my $context = $self->cairo;
     my $border = $comp->border;
@@ -337,7 +337,7 @@ sub _draw_textbox {
             } elsif($halign eq 'center') {
                 $x = $width2 - $twidth2;
             # } else {
-                # $x += $xdiff;
+            #     $x += $xdiff;
             }
 
             if($valign eq 'bottom') {
@@ -398,6 +398,76 @@ sub _draw_canvas {
 
         $self->_draw_path($_->{path}, $_->{op});
     }
+}
+
+sub _draw_image {
+    my ($self, $comp) = @_;
+
+    $self->_draw_component($comp);
+
+    my $cairo = $self->cairo;
+
+    $cairo->save;
+
+    my $imgs = Cairo::ImageSurface->create_from_png($comp->image);
+
+    my $bb = $comp->inside_bounding_box;
+
+    my $bumpx = 0;
+    my $bumpy = 0;
+    if($comp->horizontal_alignment eq 'center') {
+        $bumpx = $bb->width / 2;
+        if(defined($comp->scale)) {
+            $bumpx -= $comp->scale->[0] * ($imgs->get_width / 2);
+        } else {
+            $bumpx -= $imgs->get_width / 2;
+        }
+    } elsif($comp->horizontal_alignment eq 'right') {
+        $bumpx = $bb->width;
+        if(defined($comp->scale)) {
+            $bumpx -= $comp->scale->[0] * $imgs->get_width;
+        } else {
+            $bumpx -= $imgs->get_width;
+        }
+    }
+
+    if($comp->vertical_alignment eq 'center') {
+        $bumpy = $bb->height / 2;
+        if(defined($comp->scale)) {
+            $bumpy -= $comp->scale->[1] * ($imgs->get_height / 2);
+        } else {
+            $bumpy -= $imgs->get_height / 2;
+        }
+    } elsif($comp->vertical_alignment eq 'bottom') {
+        $bumpy = $bb->height;
+        if(defined($comp->scale)) {
+            $bumpy -= $comp->scale->[1] * $imgs->get_height;
+        } else {
+            $bumpy -= $imgs->get_height;
+        }
+    }
+
+    $cairo->translate($bb->origin->x + $bumpx, $bb->origin->y + $bumpy);
+    $cairo->rectangle(0, 0, $imgs->get_width, $imgs->get_width);
+    $cairo->clip;
+
+    if(defined($comp->scale)) {
+        $cairo->scale($comp->scale->[0], $comp->scale->[1]);
+    }
+
+    $cairo->rectangle(
+       0, 0, $imgs->get_width, $imgs->get_height
+    );
+
+    $cairo->set_source_surface($imgs, 0, 0);
+
+    $cairo->fill;#_preserve;
+
+    # $cairo->set_line_width(2);
+    # $cairo->set_source_rgba(0, 0, 0, 1);
+    # $cairo->stroke;
+
+    $cairo->restore;
 }
 
 sub _draw_path {
@@ -584,12 +654,13 @@ sub get_text_bounding_box {
     # if($fsize > $tbsize) {
     #     $tbsize = $fsize;
     # }
+
     my $tb = Geometry::Primitive::Rectangle->new(
         origin  => Geometry::Primitive::Point->new(
             x => $exts->{x_bearing},#$exts[0],
             y => $exts->{y_bearing},#$exts[1],
         ),
-        width   => $exts->{width},#abs($exts[2]) + abs($exts[0]),
+        width   => $exts->{width} + $exts->{x_bearing} + 1,#abs($exts[2]) + abs($exts[0]),
         height  => $exts->{height},#$tbsize
     );
 

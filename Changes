@@ -1,9 +1,14 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.16
+  - Fiddle with text widths in get_text_bounding_box
+  - Add image drawing (experimental)
+
 0.15
   - Remove useless move_to and hash assignment in get_text_bounding_box
   - Get rid of surface_data accessor for a simple concatenation, remove
     some useless API pieces (append_surface_data and surface_data)
+  - Fix broken margins when drawing complex borders.
 
 0.14
   - Use cairo's text_extents instead of text_path and fill_extents, this
