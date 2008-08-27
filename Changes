@@ -1,5 +1,9 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.14
+  - Use cairo's text_extents instead of text_path and fill_extents, this
+    unfortunately breaks rotation for now
+
 0.13
   - Non-rotated TextBox alignment
 
