@@ -1,5 +1,10 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.15
+  - Remove useless move_to and hash assignment in get_text_bounding_box
+  - Get rid of surface_data accessor for a simple concatenation, remove
+    some useless API pieces (append_surface_data and surface_data)
+
 0.14
   - Use cairo's text_extents instead of text_path and fill_extents, this
     unfortunately breaks rotation for now

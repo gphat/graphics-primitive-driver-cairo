@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     qw(PDF PS PNG SVG pdf ps png svg)
@@ -64,19 +64,22 @@ has 'surface' => (
             croak('Your Cairo does not have PostScript support!')
                 unless Cairo::HAS_PDF_SURFACE;
             $surface = Cairo::PdfSurface->create_for_stream(
-                $self->can('append_surface_data'), $self, $width, $height
+                sub { $self->{DATA} .= $_[1] }, $self, $width, $height
+                # $self->can('append_surface_data'), $self, $width, $height
             );
         } elsif(uc($self->format) eq 'PS') {
             croak('Your Cairo does not have PostScript support!')
                 unless Cairo::HAS_PS_SURFACE;
             $surface = Cairo::PsSurface->create_for_stream(
-                $self->can('append_surface_data'), $self, $width, $height
+                sub { $self->{DATA} .= $_[1] }, $self, $width, $height
+                # $self->can('append_surface_data'), $self, $width, $height
             );
         } elsif(uc($self->format) eq 'SVG') {
             croak('Your Cairo does not have SVG support!')
                 unless Cairo::HAS_SVG_SURFACE;
             $surface = Cairo::SvgSurface->create_for_stream(
-                $self->can('append_surface_data'), $self, $width, $height
+                sub { $self->{DATA} .= $_[1] }, $self, $width, $height
+                # $self->can('append_surface_data'), $self, $width, $height
             );
         } else {
             croak("Unknown format '".$self->format."'");
@@ -84,20 +87,11 @@ has 'surface' => (
         return $surface;
     }
 );
-has 'surface_data' => (
-    metaclass => 'String',
-    is => 'rw',
-    isa => 'Str',
-    default => sub { '' },
-    provides => {
-        append => 'append_surface_data'
-    },
-);
 
 sub data {
     my ($self) = @_;
 
-    return $self->surface_data;
+    return $self->{DATA};
 }
 
 around('draw', sub {
@@ -135,7 +129,7 @@ sub write {
     my $fh = IO::File->new($file, 'w')
         or die("Unable to open '$file' for writing: $!");
     $fh->binmode(1);
-    $fh->print($self->surface_data);
+    $fh->print($self->data);
     $fh->close;
 }
 
@@ -559,11 +553,10 @@ sub get_text_bounding_box {
 
     my $key = "$text||".$font->face.'||'.$font->slant.'||'.$font->weight.'||'.$fsize;
 
+    # If our text + font key is found, return the box we already made.
     if(exists($self->{TBCACHE}->{$key})) {
         return ($self->{TBCACHE}->{$key}->[0], $self->{TBCACHE}->{$key}->[1]);
     }
-
-    $self->{$text} = 1;
 
     # my @exts;
     my $exts;
@@ -575,13 +568,12 @@ sub get_text_bounding_box {
         $exts->{x_bearing} = 0;
         $exts->{x_advance} = 0;
         $exts->{width} = 0;
-        $exts->{height} = $font->size;
+        $exts->{height} = $fsize;
     } else {
         $context->select_font_face(
             $font->face, $font->slant, $font->weight
         );
         $context->set_font_size($fsize);
-        $context->move_to(0, 0);
         $exts = $context->text_extents($text);
     }
 
@@ -699,10 +691,6 @@ Creates a new Graphics::Primitive::Driver::Cairo object.  Requires a format.
 
 =over 4
 
-=item I<append_surface_data>
-
-Append to the surface data.
-
 =item I<cairo>
 
 This driver's Cairo::Context object
@@ -741,10 +729,6 @@ Reset the driver.
 =item I<surface>
 
 Get/Set the surface on which this driver is operating.
-
-=item I<surface_data>
-
-Get the data for this driver's surface.
 
 =item I<write>
 
