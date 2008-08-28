@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.17
+  - Fix retrieval of PNG surface via data
+
 0.16
   - Fiddle with text widths in get_text_bounding_box
   - Add image drawing (experimental)

@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     qw(PDF PS PNG SVG pdf ps png svg)
@@ -90,6 +90,15 @@ has 'surface' => (
 
 sub data {
     my ($self) = @_;
+
+    if(uc($self->format) eq 'PNG') {
+        my $buff;
+        $self->surface->write_to_png_stream(sub {
+            my ($closure, $data) = @_;
+            $buff .= $data;
+        });
+        return $buff;
+    }
 
     return $self->{DATA};
 }
