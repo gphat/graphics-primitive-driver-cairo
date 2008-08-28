@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.18
+  - Dashed borders
+
 0.17
   - Fix retrieval of PNG surface via data
 

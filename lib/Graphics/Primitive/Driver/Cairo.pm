@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     qw(PDF PS PNG SVG pdf ps png svg)
@@ -204,7 +204,15 @@ sub _draw_complex_border {
 
         $context->set_line_width($bt->width);
         $context->rel_line_to($width - $mr - $ml, 0);
+
+        my $dash = $bt->dash_pattern;
+        if(defined($dash) && scalar(@{ $dash })) {
+            $context->set_dash(0, @{ $dash });
+        }
+
         $context->stroke;
+
+        $context->set_dash(0, []);
     }
 
     if($rhalf) {
@@ -213,7 +221,14 @@ sub _draw_complex_border {
 
         $context->set_line_width($br->width);
         $context->rel_line_to(0, $height - $mb);
+
+        my $dash = $br->dash_pattern;
+        if(defined($dash) && scalar(@{ $dash })) {
+            $context->set_dash(0, @{ $dash });
+        }
+
         $context->stroke;
+        $context->set_dash(0, []);
     }
 
     if($bhalf) {
@@ -222,6 +237,12 @@ sub _draw_complex_border {
 
         $context->set_line_width($bb->width);
         $context->rel_line_to(-($width - $mb), 0);
+
+        my $dash = $bb->dash_pattern;
+        if(defined($dash) && scalar(@{ $dash })) {
+            $context->set_dash(0, @{ $dash });
+        }
+
         $context->stroke;
     }
 
@@ -231,7 +252,14 @@ sub _draw_complex_border {
 
         $context->set_line_width($bl->width);
         $context->rel_line_to(0, $height - $mb);
+
+        my $dash = $bl->dash_pattern;
+        if(defined($dash) && scalar(@{ $dash })) {
+            $context->set_dash(0, @{ $dash });
+        }
+
         $context->stroke;
+        $context->set_dash(0, []);
     }
 }
 
@@ -260,6 +288,11 @@ sub _draw_simple_border {
     my $mx = $margins[3];
     my $my = $margins[1];
 
+    my $dash = $top->dash_pattern;
+    if(defined($dash) && scalar(@{ $dash })) {
+        $context->set_dash(0, @{ $dash });
+    }
+
     $context->rectangle(
         $margins[3] + $swhalf, $margins[0] + $swhalf,
         $width - $bswidth - $margins[3] - $margins[1],
@@ -268,6 +301,9 @@ sub _draw_simple_border {
         # $width - $bswidth - $mw - $mx, $height - $bswidth - $mh - $my
     );
     $context->stroke;
+
+    # Reset dashing
+    $context->set_dash(0, []);
 }
 
 sub _draw_textbox {
