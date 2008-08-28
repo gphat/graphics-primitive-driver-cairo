@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.19
+  - Take out debugging leftovers
+
 0.18
   - Dashed borders
   - Dashed stroke

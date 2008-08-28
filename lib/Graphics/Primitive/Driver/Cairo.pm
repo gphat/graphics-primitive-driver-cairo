@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.18';
+our $VERSION = '0.19';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     qw(PDF PS PNG SVG pdf ps png svg)
@@ -436,7 +436,6 @@ sub _draw_canvas {
 
     $self->_draw_component($comp);
 
-    print "## $comp\n";
     foreach (@{ $comp->paths }) {
 
         $self->_draw_path($_->{path}, $_->{op});
