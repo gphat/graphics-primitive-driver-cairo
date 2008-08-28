@@ -3,6 +3,7 @@ Revision history for Graphics-Primitive-Driver-Cairo
 0.16
   - Fiddle with text widths in get_text_bounding_box
   - Add image drawing (experimental)
+  - Fix textbox alignment paired with margins
 
 0.15
   - Remove useless move_to and hash assignment in get_text_bounding_box

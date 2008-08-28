@@ -333,9 +333,9 @@ sub _draw_textbox {
         # 
         # } else {
             if($halign eq 'right') {
-                $x = $width - $twidth;
+                $x += $width - $twidth;
             } elsif($halign eq 'center') {
-                $x = $width2 - $twidth2;
+                $x += $width2 - $twidth2;
             # } else {
             #     $x += $xdiff;
             }
