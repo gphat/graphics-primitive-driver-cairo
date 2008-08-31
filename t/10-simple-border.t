@@ -6,11 +6,13 @@ use File::Spec::Functions;
 use Graphics::Primitive::Component;
 use Graphics::Primitive::Driver::Cairo;
 use Graphics::Color::RGB;
-use Test::More tests => 1;
+use Test::More;
 
 eval "use Test::Image::GD";
 plan skip_all => "Test::Image::GD required for testing output testing"
     if $@;
+
+plan tests => 1;
 
 my $path_to_ofile = catdir('t', 'osimple-border.png');
 my $path_to_file = catdir('t', 'images', 'simple-border.png');

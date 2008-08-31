@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.20
+  - Test adjustments for missing Test::Image::GD (thanks to Vladimir Timofeev)
+
 0.19
   - Take out debugging leftovers
 
