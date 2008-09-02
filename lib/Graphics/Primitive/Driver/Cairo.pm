@@ -93,12 +93,6 @@ sub data {
 
     my $cr = $self->cairo;
 
-    $cr->show_page;
-
-    $cr = undef;
-    $self->clear_cairo;
-    $self->clear_surface;
-
     if(uc($self->format) eq 'PNG') {
         my $buff;
         $self->surface->write_to_png_stream(sub {
@@ -107,6 +101,12 @@ sub data {
         });
         return $buff;
     }
+
+    $cr->show_page;
+
+    $cr = undef;
+    $self->clear_cairo;
+    $self->clear_surface;
 
     return $self->{DATA};
 }
@@ -132,7 +132,7 @@ sub write {
 
     my $fh = IO::File->new($file, 'w')
         or die("Unable to open '$file' for writing: $!");
-    $fh->binmode(1);
+    $fh->binmode;
     $fh->print($self->data);
     $fh->close;
 }
