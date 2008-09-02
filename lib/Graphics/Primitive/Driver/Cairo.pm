@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     qw(PDF PS PNG SVG pdf ps png svg)
@@ -90,6 +90,14 @@ has 'surface' => (
 
 sub data {
     my ($self) = @_;
+
+    my $cr = $self->cairo;
+
+    $cr->show_page;
+
+    $cr = undef;
+    $self->clear_cairo;
+    $self->clear_surface;
 
     if(uc($self->format) eq 'PNG') {
         my $buff;

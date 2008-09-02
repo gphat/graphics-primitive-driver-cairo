@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.21
+  - Fix data method not "finishing" the scene.
+
 0.20
   - Test adjustments for missing Test::Image::GD (thanks to Vladimir Timofeev)
 
