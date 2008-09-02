@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.22
+  - Fix the bug that the fix from 0.21 created.
+
 0.21
   - Fix data method not "finishing" the scene.
 
