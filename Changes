@@ -1,7 +1,7 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
 0.23
-  - 
+  - Add _draw_polygon
 
 0.22
   - Fix the bug that the fix from 0.21 created.
