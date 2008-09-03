@@ -11,7 +11,7 @@ use IO::File;
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     qw(PDF PS PNG SVG pdf ps png svg)
@@ -541,6 +541,8 @@ sub _draw_path {
             $self->_draw_arc($prim);
         } elsif($prim->isa('Geometry::Primitive::Bezier')) {
             $self->_draw_bezier($prim);
+        } elsif($prim->isa('Geometry::Primitive::Polygon')) {
+            $self->_draw_polygon($prim);
         }
     }
 
@@ -561,6 +563,17 @@ sub _draw_line {
     my $context = $self->cairo;
     my $end = $line->end;
     $context->line_to($end->x, $end->y);
+}
+
+sub _draw_polygon {
+    my ($self, $poly) = @_;
+
+    my $context = $self->cairo;
+    for(my $i = 1; $i < $poly->point_count; $i++) {
+        my $p = $poly->get_point($i);
+        $context->line_to($p->x, $p->y);
+    }
+    $context->close_path;
 }
 
 sub _draw_rectangle {
