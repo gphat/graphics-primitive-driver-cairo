@@ -39,7 +39,7 @@ $comp->border->bottom->width(8);
 
 my $driver = Graphics::Primitive::Driver::Cairo->new(format => 'png');
 $driver->prepare($comp);
-$driver->pack($comp);
+$driver->finalize($comp);
 $driver->draw($comp);
 $driver->write($path_to_ofile);
 
