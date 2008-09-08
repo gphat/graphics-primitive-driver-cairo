@@ -9,10 +9,10 @@ build_requires 'Test::More';
 test_requires 'File::Spec';
 
 requires 'Cairo' => '1.060';
-requires 'Moose' => '0.54';
+requires 'Moose' => '0.57';
 requires 'IO::File';
-requires 'Geometry::Primitive' => '0.09';
-requires 'Graphics::Primitive' => '0.28';
+requires 'Geometry::Primitive' => '0.10';
+requires 'Graphics::Primitive' => '0.29';
 
 auto_install;
 
