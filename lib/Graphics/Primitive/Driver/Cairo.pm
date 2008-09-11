@@ -667,9 +667,15 @@ sub _resize {
 }
 
 sub get_text_bounding_box {
-    my ($self, $font, $text, $angle) = @_;
+    my ($self, $tb, $text) = @_;
 
     my $context = $self->cairo;
+
+    my $font = $tb->font;
+
+    unless(defined($text)) {
+        $text = $tb->text;
+    }
 
     $context->new_path;
 
@@ -709,7 +715,7 @@ sub get_text_bounding_box {
     #     $tbsize = $fsize;
     # }
 
-    my $tb = Geometry::Primitive::Rectangle->new(
+    my $tbr = Geometry::Primitive::Rectangle->new(
         origin  => Geometry::Primitive::Point->new(
             x => $exts->{x_bearing},#$exts[0],
             y => $exts->{y_bearing},#$exts[1],
@@ -718,7 +724,7 @@ sub get_text_bounding_box {
         height  => $exts->{height},#$tbsize
     );
 
-    my $cb = $tb;
+    my $cb = $tbr;
     # if($angle) {
     #     $context->rotate($angle);
     # 
@@ -733,9 +739,9 @@ sub get_text_bounding_box {
     #     );
     # }
 
-    $self->{TBCACHE}->{$key} = [ $cb, $tb ];
+    $self->{TBCACHE}->{$key} = [ $cb, $tbr ];
 
-    return ($cb, $tb);
+    return ($cb, $tbr);
 }
 
 sub reset {
