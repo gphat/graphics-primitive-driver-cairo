@@ -6,12 +6,17 @@ use Cairo;
 use Carp;
 use Geometry::Primitive::Point;
 use Geometry::Primitive::Rectangle;
+use Graphics::Primitive::Driver::Cairo::TextLayout;
 use IO::File;
 
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
 our $VERSION = '0.24';
+
+enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => (
+    qw(default none gray subpixel)
+);
 
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     qw(PDF PS PNG SVG pdf ps png svg)
@@ -27,6 +32,10 @@ has '_preserve_count' => (
     is  => 'rw',
     default => sub { 0 }
 );
+has 'antialias_mode' => (
+    is => 'rw',
+    isa => 'Graphics::Primitive::Driver::Cairo::Antialiasing'
+);
 has 'cairo' => (
     is => 'rw',
     isa => 'Cairo::Context',
@@ -34,7 +43,13 @@ has 'cairo' => (
     lazy => 1,
     default => sub {
         my $self = shift;
-        return Cairo::Context->create($self->surface);
+        my $ctx = Cairo::Context->create($self->surface);
+
+        # if(defined($self->antialias_mode)) {
+        #     $ctx->set_antialias($self->antialias_mode);
+        # }
+
+        return $ctx;
     }
 );
 has 'format' => (
@@ -84,6 +99,7 @@ has 'surface' => (
         } else {
             croak("Unknown format '".$self->format."'");
         }
+
         return $surface;
     }
 );
@@ -329,7 +345,7 @@ sub _draw_textbox {
 
     my $yaccum = $bbox->origin->y;
 
-    foreach my $line (@{ $comp->lines }) {
+    foreach my $line (@{ $comp->layout->lines }) {
         my $text = $line->{text};
         my $tbox = $line->{box};
 
@@ -396,6 +412,7 @@ sub _draw_textbox {
     }
     $context->set_source_rgba($comp->color->as_array_with_alpha);
     $context->fill;
+
 }
 
 sub _draw_arc {
@@ -681,12 +698,12 @@ sub get_text_bounding_box {
 
     my $fsize = $font->size;
 
-    my $key = "$text||".$font->face.'||'.$font->slant.'||'.$font->weight.'||'.$fsize;
+    # my $key = "$text||".$font->face.'||'.$font->slant.'||'.$font->weight.'||'.$fsize;
 
     # If our text + font key is found, return the box we already made.
-    if(exists($self->{TBCACHE}->{$key})) {
-        return ($self->{TBCACHE}->{$key}->[0], $self->{TBCACHE}->{$key}->[1]);
-    }
+    # if(exists($self->{TBCACHE}->{$key})) {
+    #     return ($self->{TBCACHE}->{$key}->[0], $self->{TBCACHE}->{$key}->[1]);
+    # }
 
     # my @exts;
     my $exts;
@@ -739,9 +756,23 @@ sub get_text_bounding_box {
     #     );
     # }
 
-    $self->{TBCACHE}->{$key} = [ $cb, $tbr ];
+    # $self->{TBCACHE}->{$key} = [ $cb, $tbr ];
 
     return ($cb, $tbr);
+}
+
+sub get_textbox_layout {
+    my ($self, $comp) = @_;
+
+    # use Data::Dumper;
+    # print Dumper(caller);
+
+    my $tl = Graphics::Primitive::Driver::Cairo::TextLayout->new(
+        component => $comp,
+        # width => $comp->width
+    );
+    $tl->layout($self);
+    return $tl;
 }
 
 sub reset {
