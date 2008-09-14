@@ -317,6 +317,8 @@ sub _draw_simple_border {
 sub _draw_textbox {
     my ($self, $comp) = @_;
 
+    return unless defined($comp->text);
+
     $self->_draw_component($comp);
 
     my $bbox = $comp->inside_bounding_box;
