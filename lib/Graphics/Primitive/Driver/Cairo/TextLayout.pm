@@ -42,7 +42,7 @@ sub layout {
 
     my $comp = $self->component;
     my $font = $comp->font;
-    my $width = $comp->width;
+    my $width = $comp->width ? $comp->width : $comp->minimum_width;
     my $text = $comp->text;
 
     unless($self->width) {
