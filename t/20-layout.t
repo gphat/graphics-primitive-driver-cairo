@@ -32,7 +32,6 @@ my $tb = Graphics::Primitive::TextBox->new(
 );
 
 my $tl = $driver->get_textbox_layout($tb);
-$tl->layout($driver);
 
 my $ret = $tl->slice(0, 20);
 isa_ok($ret, 'Graphics::Primitive::TextBox');
