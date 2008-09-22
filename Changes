@@ -1,5 +1,9 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.25
+  - Implement get_textbox_layout
+  - Implement _draw_ellipse and _draw_circle
+
 0.24
   - Keep up with Graphics::Primitive API changes
   - Bump dependencies

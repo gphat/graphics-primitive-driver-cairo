@@ -13,7 +13,7 @@ use Math::Trig ':pi';
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.24';
+our $VERSION = '0.25';
 
 enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => (
     qw(default none gray subpixel)
