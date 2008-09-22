@@ -54,8 +54,6 @@ sub layout {
         return;
     }
 
-    # $self->line_height($font->size);
-
     my $size;
     my $flow = Text::Flow->new(
         check_height => sub {
@@ -65,6 +63,10 @@ sub layout {
             check_width => sub {
                 my $str = shift;
                 my $r = $driver->get_text_bounding_box($comp, $str);
+                unless($width) {
+                    # Catch the "no width" case.
+                    return 1;
+                }
                 if($r->width > $width) {
                     return 0;
                 }
@@ -77,7 +79,9 @@ sub layout {
 
     my $p = $text[0];
     my @lines = split(/\n/, $p);
+
     my $height = 0;
+    $width = 0;
     foreach my $l (@lines) {
         my ($cb, $tb) = $driver->get_text_bounding_box($comp);
 
@@ -87,20 +91,13 @@ sub layout {
             cb => $cb
         });
         $height += $cb->height;
+        $width += $cb->width;
     }
+
     $self->height($height);
-
-
-    # sub height {
-    #     my ($self) = @_;
-    # 
-    #     my $h = 0;
-    #     foreach my $l (@{ $self->lines }) {
-    #         $h += defined($self->line_height)
-    #             ? $self->line_height : $l->{cb}->height;
-    #     }
-    #     return $h;
-    # }
+    if(!defined($self->width) || ($self->width == 0)) {
+        $self->width($width);
+    }
 }
 
 sub slice {
