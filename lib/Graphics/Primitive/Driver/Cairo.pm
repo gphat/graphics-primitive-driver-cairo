@@ -8,6 +8,7 @@ use Geometry::Primitive::Point;
 use Geometry::Primitive::Rectangle;
 use Graphics::Primitive::Driver::Cairo::TextLayout;
 use IO::File;
+use Math::Trig ':pi';
 
 with 'Graphics::Primitive::Driver';
 
@@ -456,6 +457,32 @@ sub _draw_canvas {
     }
 }
 
+sub _draw_circle {
+    my ($self, $circle) = @_;
+
+    my $context = $self->cairo;
+    my $o = $circle->origin;
+    $context->arc(
+        $o->x, $o->y, $circle->radius, 0, pi2
+    );
+}
+
+sub _draw_ellipse {
+    my ($self, $ell) = @_;
+
+    my $cairo = $self->cairo;
+    my $o = $ell->origin;
+
+    $cairo->new_sub_path;
+    $cairo->save;
+    $cairo->translate($o->x, $o->y);
+    $cairo->scale($ell->width / 2, $ell->height / 2);
+    $cairo->arc(
+        $o->x, $o->y, 1, 0, pi2
+    );
+    $cairo->restore;
+}
+
 sub _draw_image {
     my ($self, $comp) = @_;
 
@@ -885,6 +912,11 @@ two rectangles are actually the same object.
 
 If the optional angle is supplied the text will be rotated by the supplied
 amount in radians.
+
+=item I<get_textbox_layout ($tb)>
+
+Returns a L<Graphics::Primitive::Driver::TextLayout> for the supplied
+textbox.
 
 =item I<reset>
 

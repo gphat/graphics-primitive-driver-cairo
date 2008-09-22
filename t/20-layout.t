@@ -8,7 +8,7 @@ use Graphics::Primitive::Font;
 use Graphics::Primitive::TextBox;
 use Graphics::Primitive::Driver::Cairo;
 
-my $driver = Graphics::Primitive::Driver::Cairo->new(format => 'PNG');
+my $driver = Graphics::Primitive::Driver::Cairo->new(format => 'PNG', width => 80, height => 300);
 
 my $text = "Lorem ipsum dolor sit amet,\nconsectetur adipisicing elit,\nsed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\nUt enim ad minim veniam,\nquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
