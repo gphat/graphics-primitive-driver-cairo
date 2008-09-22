@@ -793,12 +793,8 @@ sub get_text_bounding_box {
 sub get_textbox_layout {
     my ($self, $comp) = @_;
 
-    # use Data::Dumper;
-    # print Dumper(caller);
-
     my $tl = Graphics::Primitive::Driver::Cairo::TextLayout->new(
-        component => $comp,
-        # width => $comp->width
+        component => $comp
     );
     $tl->layout($self);
     return $tl;
