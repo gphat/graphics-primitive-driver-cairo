@@ -14,10 +14,7 @@ requires 'IO::File';
 requires 'Geometry::Primitive' => '0.12';
 requires 'Graphics::Primitive' => '0.31';
 requires 'Math::Complex' => '1.54';
-requires 'Text::Flow';
-
-
-auto_install;
+requires 'Text::Flow' => '0.1';
 
 WriteAll;
 
