@@ -12,7 +12,7 @@ requires 'Cairo' => '1.060';
 requires 'Moose' => '0.57';
 requires 'IO::File';
 requires 'Geometry::Primitive' => '0.12';
-requires 'Graphics::Primitive' => '0.31';
+requires 'Graphics::Primitive' => '0.32';
 requires 'Math::Complex' => '1.54';
 requires 'Text::Flow' => '0.01';
 

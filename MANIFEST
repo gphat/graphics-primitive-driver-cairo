@@ -19,5 +19,4 @@ t/10-simple-border.t
 t/20-layout.t
 t/images/complex-border.png
 t/images/simple-border.png
-t/pod-coverage.t
 t/pod.t

@@ -13,7 +13,7 @@ use Math::Trig ':pi';
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.27';
+our $VERSION = '0.28';
 
 enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => (
     qw(default none gray subpixel)
@@ -35,7 +35,7 @@ has '_preserve_count' => (
 );
 has 'antialias_mode' => (
     is => 'rw',
-    isa => 'Graphics::Primitive::Driver::Cairo::Antialiasing'
+    isa => 'Graphics::Primitive::Driver::Cairo::AntialiasModes'
 );
 has 'cairo' => (
     is => 'rw',
@@ -46,9 +46,9 @@ has 'cairo' => (
         my $self = shift;
         my $ctx = Cairo::Context->create($self->surface);
 
-        # if(defined($self->antialias_mode)) {
-        #     $ctx->set_antialias($self->antialias_mode);
-        # }
+        if(defined($self->antialias_mode)) {
+            $ctx->set_antialias($self->antialias_mode);
+        }
 
         return $ctx;
     }

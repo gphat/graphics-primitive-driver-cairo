@@ -1,5 +1,9 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.28
+  - Dependency Bumps
+  - Add antialias_mode attribute
+
 0.27
   - POD updates
 
