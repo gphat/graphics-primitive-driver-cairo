@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.27
+  - POD updates
+
 0.26
   - TextLayout: slice now returns a TextBox with it's minimum_(height|width)
     set, rather than the (height|width).
