@@ -587,6 +587,10 @@ sub _draw_path {
             $self->_draw_arc($prim);
         } elsif($prim->isa('Geometry::Primitive::Bezier')) {
             $self->_draw_bezier($prim);
+        } elsif($prim->isa('Geometry::Primitive::Circle')) {
+            $self->_draw_circle($prim);
+        } elsif($prim->isa('Geometry::Primitive::Ellipse')) {
+            $self->_draw_ellipse($prim);
         } elsif($prim->isa('Geometry::Primitive::Polygon')) {
             $self->_draw_polygon($prim);
         }
