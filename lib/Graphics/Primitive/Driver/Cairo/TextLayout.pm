@@ -7,35 +7,11 @@ with 'Graphics::Primitive::Driver::TextLayout';
 
 use Text::Flow;
 
-# has 'component' => (
-#     is => 'rw',
-#     isa => 'Graphics::Primitive::Component')
 has 'lines' => (
     is => 'rw',
     isa => 'ArrayRef',
     default => sub { [] }
 );
-# has 'text' => (
-#     is => 'rw',
-#     isa => 'Str',
-#     required => 1
-# );
-# has 'width' => (
-#     is => 'rw',
-#     isa => 'Num',
-#     required => 1
-# );
-
-# sub height {
-#     my ($self) = @_;
-# 
-#     my $h = 0;
-#     foreach my $l (@{ $self->lines }) {
-#         $h += defined($self->line_height)
-#             ? $self->line_height : $l->{cb}->height;
-#     }
-#     return $h;
-# }
 
 sub layout {
     my ($self, $driver) = @_;
@@ -141,12 +117,6 @@ sub slice {
         minimum_width => $self->width,
         minimum_height => $found
     );
-
-    # my %ret = (
-    #     size => $found,
-    #     lines => \@new
-    # );
-    # return \%ret;
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -166,7 +136,12 @@ Graphics::Primitive::Driver::Cairo::TextLayout - Text layout engine
 =head1 DESCRIPTION
 
 Implements L<Graphics::Primitive::Driver::TextLayout>.  Please refer to it's
-documentation.  For usage.
+documentation for usage.
+
+=head1 IMPLEMENTATION
+
+This text layout engine uses L<Text::Flow> and L<Cairo>'s "toy text" API to
+layout text.
 
 =head1 AUTHOR
 
