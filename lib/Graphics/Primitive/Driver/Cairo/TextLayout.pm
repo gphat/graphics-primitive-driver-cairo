@@ -138,8 +138,8 @@ sub slice {
 
     return Graphics::Primitive::TextBox->new(
         lines => \@new,
-        width => $self->width,
-        height => $found
+        minimum_width => $self->width,
+        minimum_height => $found
     );
 
     # my %ret = (

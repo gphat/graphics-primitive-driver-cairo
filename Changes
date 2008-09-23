@@ -1,5 +1,9 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.26
+  - TextLayout: slice now returns a TextBox with it's minimum_(height|width)
+    set, rather than the (height|width).
+
 0.25
   - Implement get_textbox_layout
   - Implement _draw_ellipse and _draw_circle
