@@ -11,8 +11,8 @@ test_requires 'File::Spec';
 requires 'Cairo' => '1.060';
 requires 'Moose' => '0.57';
 requires 'IO::File';
-requires 'Geometry::Primitive' => '0.12';
-requires 'Graphics::Primitive' => '0.33';
+requires 'Geometry::Primitive' => '0.13';
+requires 'Graphics::Primitive' => '0.34';
 requires 'Math::Complex' => '1.54';
 requires 'Text::Flow' => '0.01';
 

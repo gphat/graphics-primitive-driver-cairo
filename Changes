@@ -2,6 +2,7 @@ Revision history for Graphics-Primitive-Driver-Cairo
 
 0.29
   - Dependency Bump
+  - Move pod tests to t/author
 
 0.28
   - Dependency Bumps
