@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.30
+  - Add Radial Gradient support
+
 0.29
   - Dependency Bump
   - Move pod tests to t/author
