@@ -375,19 +375,20 @@ sub _draw_textbox {
 
         $context->save;
 
-        # if($angle) {
-        #     my $twidth2 = $twidth / 2;
-        #     my $theight = $theight;
-        #     my $cwidth2 = $width / 2;
-        #     my $cheight2 = $height / 2;
-        # 
-        #     $context->translate($cwidth2, $cheight2);
-        #     $context->rotate($angle);
-        #     $context->translate(-$cwidth2, -$cheight2);
-        #     $context->move_to($cwidth2 - $twidth2, $cheight2 + $theight / 3.5);
-        #     $context->text_path($text);
-        # 
-        # } else {
+		print "Angle: $angle\n";
+        if($angle) {
+            my $twidth2 = $twidth / 2;
+            my $theight = $theight;
+            my $cwidth2 = $width / 2;
+            my $cheight2 = $height / 2;
+
+            $context->translate($cwidth2, $cheight2);
+            $context->rotate($angle);
+            $context->translate(-$cwidth2, -$cheight2);
+            $context->move_to($cwidth2 - $twidth2, $cheight2 + $theight / 3.5);
+            $context->text_path($text);
+
+        } else {
             if($halign eq 'right') {
                 $x += $width - $twidth;
             } elsif($halign eq 'center') {
@@ -408,7 +409,7 @@ sub _draw_textbox {
             # $context->rectangle($x, $y, $twidth, -$theight);
             $context->move_to($x, $y);
             $context->text_path($text);
-        # }
+        }
 
         $context->restore;
         $yaccum += $lh;
@@ -783,19 +784,22 @@ sub get_text_bounding_box {
     );
 
     my $cb = $tbr;
-    # if($angle) {
-    #     $context->rotate($angle);
-    # 
-    #     my ($x1, $y1, $x2, $y2) = $context->path_extents;
-    #     $cb = Geometry::Primitive::Rectangle->new(
-    #         origin  => Geometry::Primitive::Point->new(
-    #             x => $x1,
-    #             y => $y1,
-    #         ),
-    #         width   => abs($x2) + abs($x1),
-    #         height  => abs($y2) + abs($y1)
-    #     );
-    # }
+    if($tb->angle) {
+		$context->save;
+		my $angle = $tb->angle;
+        $context->rotate($angle);
+
+        my ($x1, $y1, $x2, $y2) = $context->path_extents;
+        # $cb = Geometry::Primitive::Rectangle->new(
+        #     origin  => Geometry::Primitive::Point->new(
+        #         x => $x1,
+        #         y => $y1,
+        #     ),
+        #     width   => abs($x2) + abs($x1),
+        #     height  => abs($y2) + abs($y1)
+        # );
+		$context->restore;
+    }
 
     # $self->{TBCACHE}->{$key} = [ $cb, $tbr ];
 
