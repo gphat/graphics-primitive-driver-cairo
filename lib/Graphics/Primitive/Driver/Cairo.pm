@@ -13,7 +13,7 @@ use Math::Trig ':pi';
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.30';
+our $VERSION = '0.31';
 
 enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => (
     qw(default none gray subpixel)
@@ -385,6 +385,7 @@ sub _draw_textbox {
             $context->translate($cwidth2, $cheight2);
             $context->rotate($angle);
             $context->translate(-$cwidth2, -$cheight2);
+
             $context->move_to($cwidth2 - $twidth2, $cheight2 + $theight / 3.5);
             $context->text_path($text);
 
@@ -406,7 +407,6 @@ sub _draw_textbox {
             }
 
 
-            # $context->rectangle($x, $y, $twidth, -$theight);
             $context->move_to($x, $y);
             $context->text_path($text);
         }
@@ -785,20 +785,23 @@ sub get_text_bounding_box {
 
     my $cb = $tbr;
     if($tb->angle) {
-		$context->save;
-		my $angle = $tb->angle;
-        $context->rotate($angle);
 
-        my ($x1, $y1, $x2, $y2) = $context->path_extents;
-        # $cb = Geometry::Primitive::Rectangle->new(
-        #     origin  => Geometry::Primitive::Point->new(
-        #         x => $x1,
-        #         y => $y1,
-        #     ),
-        #     width   => abs($x2) + abs($x1),
-        #     height  => abs($y2) + abs($y1)
-        # );
-		$context->restore;
+        # This is a stupidly naive way to do this, but it gets the job
+        # done for now.  Just make the bounding box of the textbox as wide
+        # as it needs to be to take the widest/tallest point, that way
+        # rotations are never clipped.  The correct way would be to find
+        # the real bounding box for the transformed text.
+        my $biggest = 0;
+        if($tbr->width > $tbr->height) {
+            $biggest = $tbr->width;
+        } else {
+            $biggest = $tbr->height;
+        }
+        $cb = Geometry::Primitive::Rectangle->new(
+            origin  => $tbr->origin,
+            width   => $biggest,
+            height  => $biggest
+        );
     }
 
     # $self->{TBCACHE}->{$key} = [ $cb, $tbr ];
