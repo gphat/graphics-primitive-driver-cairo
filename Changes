@@ -3,6 +3,7 @@ Revision history for Graphics-Primitive-Driver-Cairo
 0.31
   - Add relatively naive, but surprisingly effective, method for handling
     rotated text.
+  - POD fixes
 
 0.30
   - Add Radial Gradient support

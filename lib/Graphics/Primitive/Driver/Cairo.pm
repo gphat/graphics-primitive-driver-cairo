@@ -835,8 +835,8 @@ Graphics::Primitive::Driver::Cairo - Cairo backend for Graphics::Primitive
 
 =head1 SYNOPSIS
 
-    use Graphics::Pritive::Component;
-    use Graphics::Pritive::Component;
+    use Graphics::Primitive::Component;
+    use Graphics::Primitive::Component;
     use Graphics::Primitive::Driver::Cairo;
 
     my $driver = Graphics::Primitive::Driver::Cairo->new;
@@ -876,6 +876,14 @@ Borders are drawn clockwise starting with the top one.  Since cairo can't do
 line-joins on different colored lines, each border overlaps those before it.
 This is not the way I'd like it to work, but i'm opting to fix this later.
 Consider yourself warned.
+
+=item B<Rotated Text>
+
+I'm honestly not well versed enough on the math involved in matrix manipulation
+to approach this in a smart way, and until I have the tuits this driver is
+currently not properly calculating the bounding box of rotated text.  If you
+give it a Textbox with a rotate involved, the bounding box will be the largest
+possible space the rotation I<could> yield.  This works well enough for now.
 
 =back
 
