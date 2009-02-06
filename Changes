@@ -1,5 +1,11 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.33
+  - Add new_sub_path before arc call, removing impossible-to-fix line segment
+
+0.32
+  - Remove accidental inclusion of some debugging code
+
 0.31
   - Add relatively naive, but surprisingly effective, method for handling
     rotated text.
