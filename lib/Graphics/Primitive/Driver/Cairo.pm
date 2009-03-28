@@ -13,7 +13,7 @@ use Math::Trig ':pi';
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.33';
+our $VERSION = '0.34';
 
 enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => (
     qw(default none gray subpixel)
@@ -367,17 +367,12 @@ sub _draw_textbox {
         my $theight2 = $realh / 2;
         my $twidth2 = $twidth / 2;
 
-        # The difference between the font size and the line-height is called
-        # the lead, so half of it is a half lead.
-        my $half_lead = abs(($lh - $realh) / 2);
-        # my $y = $lh + $yaccum + $half_lead;
         my $y = $yaccum + $theight;
 
         $context->save;
 
         if($angle) {
             my $twidth2 = $twidth / 2;
-            my $theight = $theight;
             my $cwidth2 = $width / 2;
             my $cheight2 = $height / 2;
 
@@ -393,8 +388,6 @@ sub _draw_textbox {
                 $x += $width - $twidth;
             } elsif($halign eq 'center') {
                 $x += $width2 - $twidth2;
-            # } else {
-            #     $x += $xdiff;
             }
 
             if($valign eq 'bottom') {
@@ -404,7 +397,6 @@ sub _draw_textbox {
             } else {
                 $y -= $ydiff;
             }
-
 
             $context->move_to($x, $y);
             $context->text_path($text);
@@ -765,14 +757,6 @@ sub get_text_bounding_box {
         $context->set_font_size($fsize);
         $exts = $context->text_extents($text);
     }
-
-    # If the textbox is smaller than it's font-size, use the font-size.  This
-    # gives us a consistent line-height.
-    # FIXME: Revisit this?
-    # my $tbsize = abs($exts[3]) + abs($exts[1]);
-    # if($fsize > $tbsize) {
-    #     $tbsize = $fsize;
-    # }
 
     my $tbr = Geometry::Primitive::Rectangle->new(
         origin  => Geometry::Primitive::Point->new(

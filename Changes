@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.34
+  - Remove various unnecessary bits
+
 0.33
   - Add new_sub_path before arc call, removing impossible-to-fix line segment
 
