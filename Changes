@@ -1,5 +1,9 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.35
+  - Fix big in draw image (was drawing box of width/width, not width/height)
+    (Danny Luna)
+
 0.34
   - Remove various unnecessary bits
 

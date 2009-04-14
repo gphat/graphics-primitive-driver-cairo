@@ -13,7 +13,7 @@ use Math::Trig ':pi';
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.34';
+our $VERSION = '0.35';
 
 enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => (
     qw(default none gray subpixel)
@@ -524,7 +524,7 @@ sub _draw_image {
     }
 
     $cairo->translate($bb->origin->x + $bumpx, $bb->origin->y + $bumpy);
-    $cairo->rectangle(0, 0, $imgs->get_width, $imgs->get_width);
+    $cairo->rectangle(0, 0, $imgs->get_width, $imgs->get_height);
     $cairo->clip;
 
     if(defined($comp->scale)) {
@@ -949,6 +949,10 @@ Write this driver's data to the specified file.
 Cory Watson, C<< <gphat@cpan.org> >>
 
 Infinity Interactive, L<http://www.iinteractive.com>
+
+=head1 ACKNOWLEDGEMENTS
+
+Danny Luna
 
 =head1 BUGS
 
