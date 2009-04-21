@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.36
+  - Disable taint mode in 00-load.t (rafl)
+
 0.35
   - Fix big in draw image (was drawing box of width/width, not width/height)
     (Danny Luna)
