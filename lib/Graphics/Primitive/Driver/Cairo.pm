@@ -770,22 +770,24 @@ sub get_text_bounding_box {
     my $cb = $tbr;
     if($tb->angle) {
 
-        # This is a stupidly naive way to do this, but it gets the job
-        # done for now.  Just make the bounding box of the textbox as wide
-        # as it needs to be to take the widest/tallest point, that way
-        # rotations are never clipped.  The correct way would be to find
-        # the real bounding box for the transformed text.
-        my $biggest = 0;
-        if($tbr->width > $tbr->height) {
-            $biggest = $tbr->width;
-        } else {
-            $biggest = $tbr->height;
-        }
+        $context->save;
+
+        my $tw2 = $tb->width / 2;
+        my $th2 = $tb->height / 2;
+
+        $context->translate($tw2, $th2);
+        $context->rotate($tb->angle);
+        $context->translate(-$tw2, -$th2);
+
+        my ($rw, $rh) = $self->_get_bounding_box($context, $exts);
+
         $cb = Geometry::Primitive::Rectangle->new(
             origin  => $tbr->origin,
-            width   => $biggest,
-            height  => $biggest
+            width   => $rw,
+            height  => $rh
         );
+
+        $context->restore;
     }
 
     # $self->{TBCACHE}->{$key} = [ $cb, $tbr ];
@@ -807,6 +809,50 @@ sub reset {
     my ($self) = @_;
 
     $self->clear_cairo;
+}
+
+sub _get_bounding_box {
+    my ($self, $context, $exts) = @_;
+
+    my $lw = $exts->{width} + abs($exts->{x_bearing});
+    my $lh = $exts->{height} + abs($exts->{y_bearing});
+
+    my $matrix = $context->get_matrix;
+    my @corners = ([0,0], [$lw,0], [$lw,$lh], [0,$lh]);
+
+    # Transform each of the four corners, the find the maximum X and Y
+    # coordinates to create a bounding box
+
+    my @points;
+    foreach my $pt (@corners) {
+        my ($x, $y) = $matrix->transform_point($pt->[0], $pt->[1]);
+        push(@points, [ $x, $y ]);
+    }
+
+    my $maxX = $points[0]->[0];
+    my $maxY = $points[0]->[1];
+    my $minX = $points[0]->[0];
+    my $minY = $points[0]->[1];
+
+    foreach my $pt (@points) {
+
+        if($pt->[0] > $maxX) {
+            $maxX = $pt->[0];
+        } elsif($pt->[0] < $minX) {
+            $minX = $pt->[0];
+        }
+
+        if($pt->[1] > $maxY) {
+            $maxY = $pt->[1];
+        } elsif($pt->[1] < $minY) {
+            $minY = $pt->[1];
+        }
+    }
+
+    my $bw = $maxX - $minX;
+    my $bh = $maxY - $minY;
+
+    return ($bw, $bh);
 }
 
 no Moose;
@@ -860,14 +906,6 @@ Borders are drawn clockwise starting with the top one.  Since cairo can't do
 line-joins on different colored lines, each border overlaps those before it.
 This is not the way I'd like it to work, but i'm opting to fix this later.
 Consider yourself warned.
-
-=item B<Rotated Text>
-
-I'm honestly not well versed enough on the math involved in matrix manipulation
-to approach this in a smart way, and until I have the tuits this driver is
-currently not properly calculating the bounding box of rotated text.  If you
-give it a Textbox with a rotate involved, the bounding box will be the largest
-possible space the rotation I<could> yield.  This works well enough for now.
 
 =back
 

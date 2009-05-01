@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.37
+  - Properly handle sizing of TextBoxes with rotated text properly
+
 0.36
   - Disable taint mode in 00-load.t (rafl)
 
