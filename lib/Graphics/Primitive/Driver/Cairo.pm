@@ -13,7 +13,7 @@ use Math::Trig ':pi';
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.37';
+our $VERSION = '0.38';
 
 enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => (
     qw(default none gray subpixel)
@@ -164,7 +164,10 @@ sub _draw_component {
 
     if(defined($comp->background_color)) {
         $context->set_source_rgba($comp->background_color->as_array_with_alpha);
-        $context->rectangle(0, 0, $width, $height);
+        my $ibb = $comp->inside_bounding_box;
+        $context->rectangle(
+            $ibb->origin->x, $ibb->origin->y, $ibb->width, $ibb->height
+        );
         $context->fill;
     }
 

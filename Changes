@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.38
+  - Honor margins when drawing background of components.
+
 0.37
   - Properly handle sizing of TextBoxes with rotated text
 
