@@ -20,7 +20,5 @@ t/20-layout.t
 t/30-margin-back.t
 t/author/pod.t
 t/images/complex-border.pdf
-t/images/complex-border.png
 t/images/margin-back.pdf
 t/images/simple-border.pdf
-t/images/simple-border.png
