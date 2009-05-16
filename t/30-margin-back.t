@@ -14,8 +14,8 @@ plan skip_all => "Test::PDF required for testing output testing"
 
 plan tests => 1;
 
-my $path_to_ofile = catdir('t', 'osimple-border.pdf');
-my $path_to_file = catdir('t', 'images', 'simple-border.pdf');
+my $path_to_ofile = catdir('t', 'omargin-back.pdf');
+my $path_to_file = catdir('t', 'images', 'margin-back.pdf');
 
 my $comp = Graphics::Primitive::Component->new(
     background_color => Graphics::Color::RGB->new(red => 1, green => 1, blue => 1, alpha => 1),
@@ -25,6 +25,7 @@ my $comp = Graphics::Primitive::Component->new(
 my $black = Graphics::Color::RGB->new(red => 0, green => 0, blue => 0, alpha => 1);
 
 $comp->border->color($black);
+$comp->margins->width(4);
 $comp->border->width(4);
 
 my $driver = Graphics::Primitive::Driver::Cairo->new(format => 'pdf');
@@ -33,7 +34,7 @@ $driver->finalize($comp);
 $driver->draw($comp);
 $driver->write($path_to_ofile);
 
-cmp_pdf($path_to_ofile, $path_to_file, 'simple border');
+cmp_pdf($path_to_ofile, $path_to_file, 'margin w/background');
 
 unlink($path_to_ofile);
 

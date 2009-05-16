@@ -8,13 +8,12 @@ use Graphics::Primitive::Driver::Cairo;
 use Graphics::Color::RGB;
 use Test::More;
 
-eval "use Test::Image::GD";
-plan skip_all => "Test::Image::GD required for testing output testing"
-    if $@;
-plan tests => 1;
+eval "use Test::PDF";
+plan skip_all => "(DISABLED) Test::PDF required for testing output testing";
+# plan tests => 1;
 
-my $path_to_ofile = catdir('t', 'ocomplex-border.png');
-my $path_to_file = catdir('t', 'images', 'complex-border.png');
+my $path_to_ofile = catdir('t', 'ocomplex-border.pdf');
+my $path_to_file = catdir('t', 'images', 'complex-border.pdf');
 
 my $comp = Graphics::Primitive::Component->new(
     background_color => Graphics::Color::RGB->new(red => 1, green => 1, blue => 1, alpha => 1),
@@ -36,14 +35,13 @@ $comp->border->right->width(4);
 $comp->border->top->width(6);
 $comp->border->bottom->width(8);
 
-
-my $driver = Graphics::Primitive::Driver::Cairo->new(format => 'png');
+my $driver = Graphics::Primitive::Driver::Cairo->new(format => 'pdf');
 $driver->prepare($comp);
 $driver->finalize($comp);
 $driver->draw($comp);
 $driver->write($path_to_ofile);
 
-cmp_image($path_to_ofile, $path_to_file, 'complex border');
+cmp_pdf($path_to_ofile, $path_to_file, 'complex border');
 
 unlink($path_to_ofile);
 
