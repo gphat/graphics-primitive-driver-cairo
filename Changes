@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.39
+  - Honor padding when drawing backgrounds... ;)
+
 0.38
   - Honor margins when drawing background of components.
 
