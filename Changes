@@ -1,5 +1,9 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.40    October 2nd, 2009
+  - Use show_text rather than text_path + fill for text rendering
+  - Set new font options from Graphics::Primitive::Font (antialias, hint, etc)
+
 0.39
   - Honor padding when drawing backgrounds... ;)
 

@@ -13,7 +13,7 @@ use Math::Trig ':pi';
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.39';
+our $VERSION = '0.40';
 
 enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => (
     qw(default none gray subpixel)
@@ -344,7 +344,16 @@ sub _draw_textbox {
     );
     $context->set_font_size($fsize);
 
+    my $options = Cairo::FontOptions->create;
+    $options->set_antialias($font->antialias_mode);
+    $options->set_subpixel_order($font->subpixel_order);
+    $options->set_hint_style($font->hint_style);
+    $options->set_hint_metrics($font->hint_metrics);
+    $context->set_font_options($options);
+
     my $angle = $comp->angle;
+
+    $context->set_source_rgba($comp->color->as_array_with_alpha);
 
     my $lh = $comp->line_height;
     $lh = $fsize unless(defined($lh));
@@ -402,14 +411,12 @@ sub _draw_textbox {
             }
 
             $context->move_to($x, $y);
-            $context->text_path($text);
+            $context->show_text($text);
         }
 
         $context->restore;
         $yaccum += $lh;
     }
-    $context->set_source_rgba($comp->color->as_array_with_alpha);
-    $context->fill;
 
 }
 
@@ -735,6 +742,13 @@ sub get_text_bounding_box {
 
     my $fsize = $font->size;
 
+    my $options = Cairo::FontOptions->create;
+    $options->set_antialias($font->antialias_mode);
+    $options->set_subpixel_order($font->subpixel_order);
+    $options->set_hint_style($font->hint_style);
+    $options->set_hint_metrics($font->hint_metrics);
+    $context->set_font_options($options);
+
     # my $key = "$text||".$font->face.'||'.$font->slant.'||'.$font->weight.'||'.$fsize;
 
     # If our text + font key is found, return the box we already made.
@@ -912,11 +926,30 @@ Consider yourself warned.
 
 =back
 
-=head1 METHODS
+=head1 Attributes
 
-=head2 Constructor
+=head2 antialias_mode
 
-=over 4
+Set/Get the antialias mode of this driver. Options are default, none, gray and
+subpixel.
+
+=head2 cairo
+
+This driver's Cairo::Context object
+
+=head2 data
+
+Get the data in a scalar for this driver.
+
+=item I<format>
+
+Get the format for this driver.
+
+=item I<surface>
+
+Get/Set the surface on which this driver is operating.
+
+=head1 Methods
 
 =item I<new>
 
@@ -924,32 +957,9 @@ Creates a new Graphics::Primitive::Driver::Cairo object.  Requires a format.
 
   my $driver = Graphics::Primitive::Driver::Cairo->new(format => 'PDF');
 
-=back
-
-=head2 Instance Methods
-
-=over 4
-
-=item I<antialias_mode>
-
-Set/Get the antialias mode of this driver. Options are default, none, gray and
-subpixel.
-
-=item I<cairo>
-
-This driver's Cairo::Context object
-
-=item I<data>
-
-Get the data in a scalar for this driver.
-
 =item I<draw>
 
 Draws the specified component.  Container's components are drawn recursively.
-
-=item I<format>
-
-Get the format for this driver.
 
 =item I<get_text_bounding_box ($font, $text, $angle)>
 
@@ -975,10 +985,6 @@ textbox.
 
 Reset the driver.
 
-=item I<surface>
-
-Get/Set the surface on which this driver is operating.
-
 =item I<write>
 
 Write this driver's data to the specified file.
@@ -988,8 +994,6 @@ Write this driver's data to the specified file.
 =head1 AUTHOR
 
 Cory Watson, C<< <gphat@cpan.org> >>
-
-Infinity Interactive, L<http://www.iinteractive.com>
 
 =head1 ACKNOWLEDGEMENTS
 
