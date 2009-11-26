@@ -883,7 +883,6 @@ Graphics::Primitive::Driver::Cairo - Cairo backend for Graphics::Primitive
 =head1 SYNOPSIS
 
     use Graphics::Primitive::Component;
-    use Graphics::Primitive::Component;
     use Graphics::Primitive::Driver::Cairo;
 
     my $driver = Graphics::Primitive::Driver::Cairo->new;
