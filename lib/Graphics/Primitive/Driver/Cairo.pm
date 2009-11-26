@@ -13,7 +13,7 @@ use Math::Trig ':pi';
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.40';
+our $VERSION = '0.41';
 
 enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => (
     qw(default none gray subpixel)
@@ -393,7 +393,7 @@ sub _draw_textbox {
             $context->translate(-$cwidth2, -$cheight2);
 
             $context->move_to($cwidth2 - $twidth2, $cheight2 + $theight / 3.5);
-            $context->text_path($text);
+            $context->show_text($text);
 
         } else {
             if($halign eq 'right') {
