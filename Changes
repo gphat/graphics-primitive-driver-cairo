@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+0.42    February 12, 2010
+  - Copyright updates.
+
 0.41    November 26th, 2009
   - Match text changes (show_text) in angled text rendering, which was    
     preventing angled text from drawing.
