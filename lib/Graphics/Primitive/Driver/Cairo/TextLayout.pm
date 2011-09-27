@@ -11,8 +11,11 @@ use Text::Flow;
 
 =head1 SYNOPSIS
 
+    my $driver = Graphics::Primitive::Driver::Cairo->new(format => 'PDF');
+
+    my $comp = Graphics::Primitive::TextBox->new;
+
     my $tl = $driver->get_textbox_layout($comp);
-    ...
 
 =head1 DESCRIPTION
 

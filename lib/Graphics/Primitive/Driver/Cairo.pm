@@ -29,9 +29,10 @@ enum 'Graphics::Primitive::Driver::Cairo::Format' => (
 
     my $driver = Graphics::Primitive::Driver::Cairo->new;
     my $container = Graphics::Primitive::Container->new(
-        width => $form->sheet_width,
-        height => $form->sheet_height
+        width => 800,
+        height => 600
     );
+    my $black = Graphics::Primitive::Color->new(red => 0, green => 0, blue => 0);
     $container->border->width(1);
     $container->border->color($black);
     $container->padding(
