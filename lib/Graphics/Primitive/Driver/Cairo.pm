@@ -13,7 +13,7 @@ use Math::Trig ':pi';
 with 'Graphics::Primitive::Driver';
 
 our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.42';
+our $VERSION = '0.43';
 
 enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => (
     qw(default none gray subpixel)
@@ -251,7 +251,7 @@ sub _draw_complex_border {
         $context->set_source_rgba($bb->color->as_array_with_alpha);
 
         $context->set_line_width($bb->width);
-        $context->rel_line_to(-($width - $mb), 0);
+        $context->rel_line_to(-($width - $mr - $ml), 0);
 
         my $dash = $bb->dash_pattern;
         if(defined($dash) && scalar(@{ $dash })) {

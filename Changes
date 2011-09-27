@@ -1,5 +1,8 @@
 Revision history for Graphics-Primitive-Driver-Cairo
 
+{{$NEXT}}
+  - Fix margin bug in bottom border drawing. (Thanks Jay Shirley)
+
 0.43    February 12, 2010
   - Copyright updates.
 
