@@ -1,5 +1,5 @@
 use strict;
-use lib qw(t t/lib);
+use Test::More;
 
 use Graphics::Color::RGB;
 use Graphics::Primitive::Font;
