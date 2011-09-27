@@ -1,11 +1,34 @@
 package Graphics::Primitive::Driver::Cairo::TextLayout;
 use Moose;
 
+# ABSTRCAT: Text layout engine
+
 use Graphics::Primitive::TextBox;
 
 with 'Graphics::Primitive::Driver::TextLayout';
 
 use Text::Flow;
+
+=head1 SYNOPSIS
+
+    my $tl = $driver->get_textbox_layout($comp);
+    ...
+
+=head1 DESCRIPTION
+
+Implements L<Graphics::Primitive::Driver::TextLayout>.  Please refer to it's
+documentation for usage.
+
+=begin :prelude
+
+=head1 IMPLEMENTATION
+
+This text layout engine uses L<Text::Flow> and L<Cairo>'s "toy text" API to
+layout text.
+
+=end :prelude
+
+=cut
 
 has 'lines' => (
     is => 'rw',
@@ -123,39 +146,3 @@ __PACKAGE__->meta->make_immutable;
 
 no Moose;
 1;
-__END__
-=head1 NAME
-
-Graphics::Primitive::Driver::Cairo::TextLayout - Text layout engine
-
-=head1 SYNOPSIS
-
-    my $tl = $driver->get_textbox_layout($comp);
-    ...
-
-=head1 DESCRIPTION
-
-Implements L<Graphics::Primitive::Driver::TextLayout>.  Please refer to it's
-documentation for usage.
-
-=head1 IMPLEMENTATION
-
-This text layout engine uses L<Text::Flow> and L<Cairo>'s "toy text" API to
-layout text.
-
-=head1 AUTHOR
-
-Cory Watson, C<< <gphat@cpan.org> >>
-
-=head1 BUGS
-
-Please report any bugs or feature requests to C<bug-geometry-primitive at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Geometry-Primitive>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2010 by Cory G Watson
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.

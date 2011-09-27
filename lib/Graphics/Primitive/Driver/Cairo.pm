@@ -2,6 +2,8 @@ package Graphics::Primitive::Driver::Cairo;
 use Moose;
 use Moose::Util::TypeConstraints;
 
+# ABSTRACT: Cairo backend for Graphics::Primitive
+
 use Cairo;
 use Carp;
 use Geometry::Primitive::Point;
@@ -12,9 +14,6 @@ use Math::Trig ':pi';
 
 with 'Graphics::Primitive::Driver';
 
-our $AUTHORITY = 'cpan:GPHAT';
-our $VERSION = '0.43';
-
 enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => (
     qw(default none gray subpixel)
 );
@@ -22,6 +21,57 @@ enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => (
 enum 'Graphics::Primitive::Driver::Cairo::Format' => (
     qw(PDF PS PNG SVG pdf ps png svg)
 );
+
+=head1 SYNOPSIS
+
+    use Graphics::Primitive::Component;
+    use Graphics::Primitive::Driver::Cairo;
+
+    my $driver = Graphics::Primitive::Driver::Cairo->new;
+    my $container = Graphics::Primitive::Container->new(
+        width => $form->sheet_width,
+        height => $form->sheet_height
+    );
+    $container->border->width(1);
+    $container->border->color($black);
+    $container->padding(
+        Graphics::Primitive::Insets->new(top => 5, bottom => 5, left => 5, right => 5)
+    );
+    my $comp = Graphics::Primitive::Component->new;
+    $comp->background_color($black);
+    $container->add_component($comp, 'c');
+
+    my $lm = Layout::Manager::Compass->new;
+    $lm->do_layout($container);
+
+    my $driver = Graphics::Primitive::Driver::Cairo->new(
+        format => 'PDF'
+    );
+    $driver->draw($container);
+    $driver->write('/Users/gphat/foo.pdf');
+
+=head1 DESCRIPTION
+
+This module draws Graphics::Primitive objects using Cairo.
+
+=begin :prelude
+
+=head1 IMPLEMENTATION DETAILS
+
+=over 4
+
+=item B<Borders>
+
+Borders are drawn clockwise starting with the top one.  Since cairo can't do
+line-joins on different colored lines, each border overlaps those before it.
+This is not the way I'd like it to work, but i'm opting to fix this later.
+Consider yourself warned.
+
+=back
+
+=end :prelude
+
+=cut
 
 # If we encounter an operation with 'preserve' set to true we'll set this attr
 # to the number of primitives in that path.  On each iteration we'll check
@@ -33,10 +83,25 @@ has '_preserve_count' => (
     is  => 'rw',
     default => sub { 0 }
 );
+
+=attr antialias_mode
+
+Set/Get the antialias mode of this driver. Options are default, none, gray and
+subpixel.
+
+=cut
+
 has 'antialias_mode' => (
     is => 'rw',
     isa => 'Graphics::Primitive::Driver::Cairo::AntialiasModes'
 );
+
+=attr cairo
+
+This driver's Cairo::Context object
+
+=cut
+
 has 'cairo' => (
     is => 'rw',
     isa => 'Cairo::Context',
@@ -53,11 +118,25 @@ has 'cairo' => (
         return $ctx;
     }
 );
+
+=attr format
+
+Get the format for this driver.
+
+=cut
+
 has 'format' => (
     is => 'ro',
     isa => 'Graphics::Primitive::Driver::Cairo::Format',
     default => sub { 'PNG' }
 );
+
+=attr surface
+
+Get/Set the surface on which this driver is operating.
+
+=cut
+
 has 'surface' => (
     is => 'rw',
     clearer => 'clear_surface',
@@ -105,6 +184,12 @@ has 'surface' => (
     }
 );
 
+=method data
+
+Get the data in a scalar for this driver.
+
+=cut
+
 sub data {
     my ($self) = @_;
 
@@ -143,6 +228,12 @@ around('draw', sub {
 
     $cairo->restore;
 });
+
+=method write ($file)
+
+Write this driver's data to the specified file.
+
+=cut
 
 sub write {
     my ($self, $file) = @_;
@@ -299,8 +390,6 @@ sub _draw_simple_border {
     my $swhalf = $bswidth / 2;
     my $width = $comp->width;
     my $height = $comp->height;
-    my $mx = $margins[3];
-    my $my = $margins[1];
 
     my $dash = $top->dash_pattern;
     if(defined($dash) && scalar(@{ $dash })) {
@@ -727,6 +816,23 @@ sub _resize {
     }
 }
 
+=method get_text_bounding_box ($font, $text, $angle)
+
+Returns two L<Rectangles|Graphics::Primitive::Rectangle> that encloses the
+supplied text. The origin's x and y maybe negative, meaning that the glyphs in
+the text extending left of x or above y.
+
+The first rectangle is the bounding box required for a container that wants to
+contain the text.  The second box is only useful if an optional angle is
+provided.  This second rectangle is the bounding box of the un-rotated text
+that allows for a controlled rotation.  If no angle is supplied then the
+two rectangles are actually the same object.
+
+If the optional angle is supplied the text will be rotated by the supplied
+amount in radians.
+
+=cut
+
 sub get_text_bounding_box {
     my ($self, $tb, $text) = @_;
 
@@ -812,6 +918,13 @@ sub get_text_bounding_box {
     return ($cb, $tbr);
 }
 
+=method get_textbox_layout ($tb)
+
+Returns a L<Graphics::Primitive::Driver::TextLayout> for the supplied
+textbox.
+
+=cut
+
 sub get_textbox_layout {
     my ($self, $comp) = @_;
 
@@ -821,6 +934,12 @@ sub get_textbox_layout {
     $tl->layout($self);
     return $tl;
 }
+
+=method reset
+
+Reset the driver.
+
+=cut
 
 sub reset {
     my ($self) = @_;
@@ -872,141 +991,19 @@ sub _get_bounding_box {
     return ($bw, $bh);
 }
 
-no Moose;
-1;
-__END__
-
-=head1 NAME
-
-Graphics::Primitive::Driver::Cairo - Cairo backend for Graphics::Primitive
-
-=head1 SYNOPSIS
-
-    use Graphics::Primitive::Component;
-    use Graphics::Primitive::Driver::Cairo;
-
-    my $driver = Graphics::Primitive::Driver::Cairo->new;
-    my $container = Graphics::Primitive::Container->new(
-        width => $form->sheet_width,
-        height => $form->sheet_height
-    );
-    $container->border->width(1);
-    $container->border->color($black);
-    $container->padding(
-        Graphics::Primitive::Insets->new(top => 5, bottom => 5, left => 5, right => 5)
-    );
-    my $comp = Graphics::Primitive::Component->new;
-    $comp->background_color($black);
-    $container->add_component($comp, 'c');
-
-    my $lm = Layout::Manager::Compass->new;
-    $lm->do_layout($container);
-
-    my $driver = Graphics::Primitive::Driver::Cairo->new(
-        format => 'PDF'
-    );
-    $driver->draw($container);
-    $driver->write('/Users/gphat/foo.pdf');
-
-=head1 DESCRIPTION
-
-This module draws Graphics::Primitive objects using Cairo.
-
-=head1 IMPLEMENTATION DETAILS
-
-=over 4
-
-=item B<Borders>
-
-Borders are drawn clockwise starting with the top one.  Since cairo can't do
-line-joins on different colored lines, each border overlaps those before it.
-This is not the way I'd like it to work, but i'm opting to fix this later.
-Consider yourself warned.
-
-=back
-
-=head1 Attributes
-
-=head2 antialias_mode
-
-Set/Get the antialias mode of this driver. Options are default, none, gray and
-subpixel.
-
-=head2 cairo
-
-This driver's Cairo::Context object
-
-=head2 data
-
-Get the data in a scalar for this driver.
-
-=item I<format>
-
-Get the format for this driver.
-
-=item I<surface>
-
-Get/Set the surface on which this driver is operating.
-
-=head1 Methods
-
-=item I<new>
-
-Creates a new Graphics::Primitive::Driver::Cairo object.  Requires a format.
-
-  my $driver = Graphics::Primitive::Driver::Cairo->new(format => 'PDF');
-
-=item I<draw>
+=method draw
 
 Draws the specified component.  Container's components are drawn recursively.
 
-=item I<get_text_bounding_box ($font, $text, $angle)>
-
-Returns two L<Rectangles|Graphics::Primitive::Rectangle> that encloses the
-supplied text. The origin's x and y maybe negative, meaning that the glyphs in
-the text extending left of x or above y.
-
-The first rectangle is the bounding box required for a container that wants to
-contain the text.  The second box is only useful if an optional angle is
-provided.  This second rectangle is the bounding box of the un-rotated text
-that allows for a controlled rotation.  If no angle is supplied then the
-two rectangles are actually the same object.
-
-If the optional angle is supplied the text will be rotated by the supplied
-amount in radians.
-
-=item I<get_textbox_layout ($tb)>
-
-Returns a L<Graphics::Primitive::Driver::TextLayout> for the supplied
-textbox.
-
-=item I<reset>
-
-Reset the driver.
-
-=item I<write>
-
-Write this driver's data to the specified file.
-
-=back
-
-=head1 AUTHOR
-
-Cory Watson, C<< <gphat@cpan.org> >>
+=begin :postlude
 
 =head1 ACKNOWLEDGEMENTS
 
 Danny Luna
 
-=head1 BUGS
+=end :postlude
 
-Please report any bugs or feature requests to C<bug-geometry-primitive at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Geometry-Primitive>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
+=cut
 
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2010 by Cory G Watson
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+no Moose;
+1;

@@ -12,8 +12,6 @@ eval "use Test::PDF";
 plan skip_all => "Test::PDF required for testing output testing"
     if $@;
 
-plan tests => 1;
-
 my $path_to_ofile = catdir('t', 'omargin-back.pdf');
 my $path_to_file = catdir('t', 'images', 'margin-back.pdf');
 
@@ -38,3 +36,4 @@ cmp_pdf($path_to_ofile, $path_to_file, 'margin w/background');
 
 unlink($path_to_ofile);
 
+done_testing;

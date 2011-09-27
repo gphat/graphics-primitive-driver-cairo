@@ -10,7 +10,6 @@ use Test::More;
 
 eval "use Test::PDF";
 plan skip_all => "(DISABLED) Test::PDF required for testing output testing";
-# plan tests => 1;
 
 my $path_to_ofile = catdir('t', 'ocomplex-border.pdf');
 my $path_to_file = catdir('t', 'images', 'complex-border.pdf');
@@ -45,3 +44,4 @@ cmp_pdf($path_to_ofile, $path_to_file, 'complex border');
 
 unlink($path_to_ofile);
 
+done_testing;

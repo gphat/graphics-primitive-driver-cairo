@@ -1,8 +1,6 @@
 use strict;
 use lib qw(t t/lib);
 
-use Test::More tests => 6;
-
 use Graphics::Color::RGB;
 use Graphics::Primitive::Font;
 use Graphics::Primitive::TextBox;
@@ -43,3 +41,5 @@ cmp_ok($ret2->minimum_height, '==', 0, 'previous offset, 2 size');
 my $ret3 = $tl->slice($ret->height, 20);
 cmp_ok($ret3->minimum_height, '>', 0, 'previous offset, 20 size, > 0');
 cmp_ok($ret3->minimum_height, '<=', 20, 'previous offset, 20 size, <= 20');
+
+done_testing;

@@ -12,8 +12,6 @@ eval "use Test::PDF";
 plan skip_all => "Test::PDF required for testing output testing"
     if $@;
 
-plan tests => 1;
-
 my $path_to_ofile = catdir('t', 'osimple-border.pdf');
 my $path_to_file = catdir('t', 'images', 'simple-border.pdf');
 
@@ -32,8 +30,10 @@ $driver->prepare($comp);
 $driver->finalize($comp);
 $driver->draw($comp);
 $driver->write($path_to_ofile);
+diag($path_to_ofile);
 
 cmp_pdf($path_to_ofile, $path_to_file, 'simple border');
 
 unlink($path_to_ofile);
 
+done_testing;
