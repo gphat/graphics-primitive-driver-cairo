@@ -14,13 +14,13 @@ use Math::Trig ':pi';
 
 with 'Graphics::Primitive::Driver';
 
-enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => (
+enum 'Graphics::Primitive::Driver::Cairo::AntialiasModes' => [
     qw(default none gray subpixel)
-);
+];
 
-enum 'Graphics::Primitive::Driver::Cairo::Format' => (
+enum 'Graphics::Primitive::Driver::Cairo::Format' => [
     qw(PDF PS PNG SVG pdf ps png svg)
-);
+];
 
 =head1 SYNOPSIS
 
