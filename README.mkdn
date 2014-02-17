@@ -4,7 +4,7 @@ Graphics::Primitive::Driver::Cairo - Cairo backend for Graphics::Primitive
 
 # VERSION
 
-version 0.45
+version 0.46
 
 # SYNOPSIS
 
