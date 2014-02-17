@@ -1,7 +1,7 @@
 package Graphics::Primitive::Driver::Cairo::TextLayout;
 use Moose;
 
-# ABSTRCAT: Text layout engine
+# ABSTRACT: Text layout engine
 
 use Graphics::Primitive::TextBox;
 
