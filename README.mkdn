@@ -4,7 +4,7 @@ Graphics::Primitive::Driver::Cairo - Cairo backend for Graphics::Primitive
 
 # VERSION
 
-version 0.46
+version 0.47
 
 # SYNOPSIS
 
@@ -41,7 +41,7 @@ This module draws Graphics::Primitive objects using Cairo.
 
 # IMPLEMENTATION DETAILS
 
-- __Borders__
+- **Borders**
 
     Borders are drawn clockwise starting with the top one.  Since cairo can't do
     line-joins on different colored lines, each border overlaps those before it.
@@ -115,7 +115,7 @@ Cory G Watson <gphat@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2014 by Cold Hard Code, LLC.
+This software is copyright (c) 2016 by Cold Hard Code, LLC.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
